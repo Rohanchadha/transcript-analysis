@@ -1,0 +1,116 @@
+{
+  "version": "default",
+  "timestamp": "2026-04-28T22:34:49.426199",
+  "config": {
+    "test_type": null,
+    "limit": 5,
+    "bot_api_url": "",
+    "total_tests": 5
+  },
+  "summary": {
+    "overall_score": 0.0,
+    "by_type": {
+      "student_query": 0.0
+    },
+    "by_dimension": {
+      "factual_accuracy": 0.0,
+      "relevance": 0.0,
+      "completeness": 0.0,
+      "tone_empathy": 0.0,
+      "actionability": 0.0,
+      "hallucination": 0.0
+    }
+  },
+  "results": [
+    {
+      "test_id": "query_001",
+      "type": "student_query",
+      "bot_response": "(dry-run: no bot response)",
+      "judgment": {
+        "scores": {
+          "factual_accuracy": 0,
+          "relevance": 0,
+          "completeness": 0,
+          "tone_empathy": 0,
+          "actionability": 0,
+          "hallucination": 0
+        },
+        "justifications": {},
+        "weighted_score": 0,
+        "overall_notes": "dry-run"
+      }
+    },
+    {
+      "test_id": "query_002",
+      "type": "student_query",
+      "bot_response": "(dry-run: no bot response)",
+      "judgment": {
+        "scores": {
+          "factual_accuracy": 0,
+          "relevance": 0,
+          "completeness": 0,
+          "tone_empathy": 0,
+          "actionability": 0,
+          "hallucination": 0
+        },
+        "justifications": {},
+        "weighted_score": 0,
+        "overall_notes": "dry-run"
+      }
+    },
+    {
+      "test_id": "query_003",
+      "type": "student_query",
+      "bot_response": "(dry-run: no bot response)",
+      "judgment": {
+        "scores": {
+          "factual_accuracy": 0,
+          "relevance": 0,
+          "completeness": 0,
+          "tone_empathy": 0,
+          "actionability": 0,
+          "hallucination": 0
+        },
+        "justifications": {},
+        "weighted_score": 0,
+        "overall_notes": "dry-run"
+      }
+    },
+    {
+      "test_id": "query_004",
+      "type": "student_query",
+      "bot_response": "(dry-run: no bot response)",
+      "judgment": {
+        "scores": {
+          "factual_accuracy": 0,
+          "relevance": 0,
+          "completeness": 0,
+          "tone_empathy": 0,
+          "actionability": 0,
+          "hallucination": 0
+        },
+        "justifications": {},
+        "weighted_score": 0,
+        "overall_notes": "dry-run"
+      }
+    },
+    {
+      "test_id": "query_005",
+      "type": "student_query",
+      "bot_response": "(dry-run: no bot response)",
+      "judgment": {
+        "scores": {
+          "factual_accuracy": 0,
+          "relevance": 0,
+          "completeness": 0,
+          "tone_empathy": 0,
+          "actionability": 0,
+          "hallucination": 0
+        },
+        "justifications": {},
+        "weighted_score": 0,
+        "overall_notes": "dry-run"
+      }
+    }
+  ]
+}
