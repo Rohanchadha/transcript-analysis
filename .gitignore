@@ -1,0 +1,21 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Large source files (not needed for dashboard — data/ has the processed results)
+call_transcripts-excel-100.xlsx
+
+# Temp
+*.tmp
