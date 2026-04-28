@@ -135,10 +135,29 @@ def aggregate_data():
         r["analysis"]["student_profile"].get("decision_stage", "unknown") for r in results
     ).most_common())
 
+    # Build transcript lookup for speaker attribution
+    transcript_map: dict = {}
+    for t in store["transcripts"]:
+        transcript_map[t["id"]] = t
+
     # ---- Query Buckets -----------------------------------------------------
     bucket_data: dict[str, list] = defaultdict(list)
     for r in results:
+        tr = transcript_map.get(r["id"])
+        counsellor_texts = set()
+        if tr:
+            for turn in tr.get("turns", []):
+                if turn["speaker"] == "Counsellor":
+                    counsellor_texts.add(turn["text"].lower().strip())
+
         for q in r["analysis"].get("query_buckets", []):
+            quote = q.get("quote", "").strip()
+            # Skip queries whose quote is actually from the Counsellor
+            if quote and counsellor_texts:
+                q_lower = quote[:40].lower()
+                if any(q_lower in ct or ct.startswith(q_lower[:25]) for ct in counsellor_texts):
+                    continue
+
             entry = {
                 "query": q.get("query", ""),
                 "quote": q.get("quote", ""),
