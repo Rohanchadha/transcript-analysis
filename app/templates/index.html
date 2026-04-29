@@ -41,6 +41,7 @@
     <button class="tab-btn" data-tab="objections">🛡️ Objection Handling</button>
     <button class="tab-btn" data-tab="flow">🔄 Call Flow</button>
     <button class="tab-btn" data-tab="explorer">🔍 Transcript Explorer</button>
+    <button class="tab-btn" data-tab="direct-admissions">⚠️ Direct Admissions</button>
     <button class="tab-btn" data-tab="institutes">🏫 Institute USPs</button>
     <button class="tab-btn" data-tab="playbook">🤖 Bot Playbook</button>
   </div>
@@ -230,8 +231,59 @@
 </section>
 
 <!-- ============================================================== -->
-<!-- TAB: INSTITUTE USPs                                             -->
+<!-- TAB: DIRECT ADMISSIONS & MANAGEMENT QUOTA                       -->
 <!-- ============================================================== -->
+<section id="tab-direct-admissions" class="tab-content">
+  <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-xl p-6 mb-6">
+    <h2 class="text-xl font-bold text-red-900 mb-1">⚠️ Direct Admissions &amp; Management Quota</h2>
+    <p class="text-sm text-red-700">Transcripts where students or counsellors discuss direct admissions, management quota, and related alternate pathways. These calls indicate students exploring non-entrance-exam routes — important for understanding the demand pattern and counsellor behaviour around these sensitive topics.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="card text-center">
+      <div class="stat-label">Flagged Calls</div>
+      <div class="stat-value text-red-600" id="da-stat-total">-</div>
+    </div>
+    <div class="card text-center">
+      <div class="stat-label">% of All Calls</div>
+      <div class="stat-value text-orange-600" id="da-stat-pct">-</div>
+    </div>
+    <div class="card text-center">
+      <div class="stat-label">By Students</div>
+      <div class="stat-value text-blue-600" id="da-stat-student">-</div>
+    </div>
+    <div class="card text-center">
+      <div class="stat-label">By Counsellors</div>
+      <div class="stat-value text-purple-600" id="da-stat-counsellor">-</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid md:grid-cols-2 gap-4 mb-6">
+    <div class="card"><div style="height:300px"><canvas id="chart-da-keywords"></canvas></div></div>
+    <div class="card"><div style="height:300px"><canvas id="chart-da-initiated"></canvas></div></div>
+  </div>
+
+  <!-- Search & filter -->
+  <div class="card mb-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-800">Flagged Transcripts</h3>
+        <p class="text-sm text-slate-500"><span id="da-call-count">-</span> calls with direct admission / management quota mentions</p>
+      </div>
+      <input id="da-search" type="text" placeholder="Search by counsellor, course, keyword, college…"
+             class="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300 w-full md:w-80">
+    </div>
+  </div>
+
+  <!-- Call cards -->
+  <div id="da-cards"></div>
+</section>
+
+<!-- ============================================================== -->
+<!-- TAB: INSTITUTE USPs                                             -->
+<!-- ==============================================================  -->
 <section id="tab-institutes" class="tab-content">
   <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-xl p-6 mb-6">
     <h2 class="text-xl font-bold text-emerald-900 mb-1">🏫 Institute USP Knowledge Base</h2>

@@ -41,6 +41,7 @@ function initTabs() {
       if (target === 'objections' && !window._objectionsInit) { initObjections(); window._objectionsInit = true; }
       if (target === 'flow' && !window._flowInit) { initFlow(); window._flowInit = true; }
       if (target === 'explorer' && !window._explorerInit) { initExplorer(); window._explorerInit = true; }
+      if (target === 'direct-admissions' && !window._daInit) { initDirectAdmissions(); window._daInit = true; }
       if (target === 'institutes' && !window._institutesInit) { initInstitutes(); window._institutesInit = true; }
       if (target === 'playbook' && !window._playbookInit) { initPlaybook(); window._playbookInit = true; }
     });
@@ -440,6 +441,195 @@ async function openTranscript(callId) {
 
 function closeModal() {
   $('#transcript-modal').classList.add('hidden');
+}
+
+/* ==================================================================== */
+/*  DIRECT ADMISSIONS TAB                                                */
+/* ==================================================================== */
+let daData = {};
+let daCalls = [];
+
+function initDirectAdmissions() {
+  daData = D.direct_admissions || {};
+  daCalls = daData.calls || [];
+
+  // Stats
+  $('#da-stat-total').textContent = fmt(daData.total_flagged || 0);
+  $('#da-stat-pct').textContent = `${daData.pct_of_calls || 0}%`;
+  const initiated = daData.initiated_by || {};
+  $('#da-stat-student').textContent = fmt(initiated['User'] || 0) + ' mentions';
+  $('#da-stat-counsellor').textContent = fmt(initiated['Counsellor'] || 0) + ' mentions';
+
+  // Keyword chart
+  const kwBreakdown = daData.keyword_breakdown || {};
+  const kwLabels = Object.keys(kwBreakdown);
+  const kwCounts = Object.values(kwBreakdown);
+  chartHBar('chart-da-keywords', kwLabels, kwCounts, 'Keyword Frequency Across Calls');
+
+  // Initiated-by chart
+  const initLabels = Object.keys(initiated);
+  const initCounts = Object.values(initiated);
+  chartDonut('chart-da-initiated', initiated, 'Who Brings It Up?');
+
+  // Render cards
+  renderDACards(daCalls);
+
+  // Search
+  $('#da-search').addEventListener('input', () => {
+    const q = ($('#da-search').value || '').toLowerCase();
+    const filtered = daCalls.filter(c =>
+      c.counsellor.toLowerCase().includes(q) ||
+      c.course.toLowerCase().includes(q) ||
+      c.summary.toLowerCase().includes(q) ||
+      c.keywords_found.some(k => k.includes(q)) ||
+      c.colleges_discussed.some(col => col.toLowerCase().includes(q))
+    );
+    renderDACards(filtered);
+  });
+}
+
+function renderDACards(calls) {
+  const container = $('#da-cards');
+  container.innerHTML = '';
+  $('#da-call-count').textContent = calls.length;
+
+  calls.forEach((call, i) => {
+    const card = document.createElement('div');
+    card.className = 'insight-card';
+    card.style.borderLeft = '4px solid #EF4444';
+
+    const outcomeBadge = call.outcome === 'application_started' ? 'badge-green' :
+                         call.outcome.includes('interested') ? 'badge-indigo' :
+                         call.outcome.includes('callback') ? 'badge-amber' : 'badge-slate';
+
+    // Header
+    let html = `
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-3">
+        <div>
+          <h4 class="font-semibold text-slate-800">${h(call.counsellor)}</h4>
+          <div class="flex flex-wrap gap-1 mt-1">
+            <span class="badge badge-slate">${h(call.course)}</span>
+            <span class="badge ${outcomeBadge}">${h((call.outcome || '').replace(/_/g, ' '))}</span>
+            <span class="badge badge-slate">${mins(call.duration)}</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mt-2 md:mt-0">
+          ${call.keywords_found.map(kw => `<span class="badge" style="background:#FEE2E2;color:#991B1B">${h(kw)}</span>`).join('')}
+        </div>
+      </div>`;
+
+    // Summary
+    if (call.summary) {
+      html += `<div class="text-sm text-slate-600 mb-3 bg-slate-50 rounded p-3">${h(call.summary)}</div>`;
+    }
+
+    // Colleges discussed
+    if (call.colleges_discussed.length) {
+      html += `<div class="mb-3">
+        <span class="text-xs font-semibold text-slate-500 uppercase">Colleges discussed:</span>
+        <div class="flex flex-wrap gap-1 mt-1">${call.colleges_discussed.map(c => `<span class="badge badge-indigo">${h(c)}</span>`).join('')}</div>
+      </div>`;
+    }
+
+    // Analysis mentions (structured insights from GPT analysis)
+    if (call.analysis_mentions?.length) {
+      html += `<div class="mb-3">
+        <span class="text-xs font-semibold text-slate-500 uppercase">Analysis Insights</span>`;
+      call.analysis_mentions.forEach(am => {
+        if (am.source === 'student_query') {
+          html += `<div class="pl-3 border-l-2 border-blue-300 mt-2">
+            <span class="badge badge-indigo text-xs">Student Query</span>
+            <div class="text-sm text-slate-700 mt-1">${h(am.text)}</div>
+            ${am.quote ? `<div class="quote">"${h(am.quote)}"</div>` : ''}
+          </div>`;
+        } else if (am.source === 'objection') {
+          html += `<div class="pl-3 border-l-2 border-amber-300 mt-2">
+            <span class="badge badge-amber text-xs">Objection</span>
+            <div class="text-sm text-slate-700 mt-1"><strong>Issue:</strong> ${h(am.text)}</div>
+            ${am.handling ? `<div class="text-sm text-slate-600"><strong>Handling:</strong> ${h(am.handling)}</div>` : ''}
+            ${am.student_quote ? `<div class="quote text-red-700">"${h(am.student_quote)}"</div>` : ''}
+            ${am.counsellor_quote ? `<div class="quote text-indigo-700">"${h(am.counsellor_quote)}"</div>` : ''}
+          </div>`;
+        } else if (am.source === 'summary') {
+          html += `<div class="pl-3 border-l-2 border-slate-300 mt-2">
+            <span class="badge badge-slate text-xs">Summary</span>
+            <div class="text-sm text-slate-600 mt-1">${h(am.text)}</div>
+          </div>`;
+        }
+      });
+      html += `</div>`;
+    }
+
+    // Matched turns with context (conversation snippets)
+    const INITIAL = 2;
+    const uid = `da-${i}`;
+    const turnsToShow = call.matched_turns.slice(0, INITIAL);
+    const hasMore = call.matched_turns.length > INITIAL;
+
+    html += `<div>
+      <span class="text-xs font-semibold text-slate-500 uppercase">Relevant Conversation Snippets</span>
+      <div class="space-y-3 mt-2" id="${uid}-turns">
+        ${turnsToShow.map(mt => renderDATurn(mt)).join('')}
+      </div>
+      ${hasMore ? `<div id="${uid}-toggle"><button class="text-sm text-red-600 hover:text-red-800 font-medium mt-2 cursor-pointer" onclick="toggleDATurns('${uid}', ${i})">▼ Show ${call.matched_turns.length - INITIAL} more snippets</button></div>` : ''}
+    </div>`;
+
+    // View full transcript link
+    html += `<div class="mt-3 pt-3 border-t border-slate-100">
+      <a href="#" onclick="event.preventDefault();openTranscript('${call.id.replace(/'/g, "\\'")}')" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">📞 View full transcript &amp; analysis →</a>
+    </div>`;
+
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function renderDATurn(mt) {
+  return `<div class="bg-slate-50 rounded-lg p-3">
+    <div class="space-y-1">
+      ${mt.context.map(t => `
+        <div class="text-sm ${t.is_match ? 'bg-red-50 border-l-2 border-red-400 pl-2 py-0.5 rounded' : ''}">
+          <span class="text-xs text-slate-400">[${h(t.time)}]</span>
+          <span class="font-semibold ${t.speaker === 'Counsellor' ? 'text-indigo-700' : 'text-green-700'}">${h(t.speaker)}:</span>
+          <span class="text-slate-700">${highlightDAKeywords(t.text)}</span>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function highlightDAKeywords(text) {
+  const keywords = [
+    'direct admission', 'direct entry', 'management quota',
+    'management seat', 'mgmt quota', 'donation seat',
+    'capitation', 'without entrance', 'bina entrance',
+    'bina exam', 'donation se', 'sidha admission',
+    'seedha admission', 'management se', 'quota se admission'
+  ];
+  let safe = h(text);
+  keywords.forEach(kw => {
+    const regex = new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    safe = safe.replace(regex, '<mark class="bg-red-200 text-red-900 px-0.5 rounded">$1</mark>');
+  });
+  return safe;
+}
+
+function toggleDATurns(uid, idx) {
+  const listEl = document.getElementById(`${uid}-turns`);
+  const toggleEl = document.getElementById(`${uid}-toggle`);
+  const isExpanded = toggleEl.dataset.expanded === '1';
+  const call = daCalls[idx];
+  const INITIAL = 2;
+
+  if (isExpanded) {
+    listEl.innerHTML = call.matched_turns.slice(0, INITIAL).map(mt => renderDATurn(mt)).join('');
+    toggleEl.innerHTML = `<button class="text-sm text-red-600 hover:text-red-800 font-medium mt-2 cursor-pointer" onclick="toggleDATurns('${uid}', ${idx})">▼ Show ${call.matched_turns.length - INITIAL} more snippets</button>`;
+    toggleEl.dataset.expanded = '0';
+  } else {
+    listEl.innerHTML = call.matched_turns.map(mt => renderDATurn(mt)).join('');
+    toggleEl.innerHTML = `<button class="text-sm text-red-600 hover:text-red-800 font-medium mt-2 cursor-pointer" onclick="toggleDATurns('${uid}', ${idx})">▲ Collapse (${call.matched_turns.length} shown)</button>`;
+    toggleEl.dataset.expanded = '1';
+  }
 }
 
 /* ==================================================================== */

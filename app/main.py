@@ -277,6 +277,130 @@ def aggregate_data():
         for phase in phase_order
     }
 
+    # ---- Direct Admissions & Management Quota ------------------------------
+    import re
+    DA_KEYWORDS = [
+        # English
+        "direct admission", "direct entry", "management quota",
+        "management seat", "mgmt quota", "donation seat",
+        "capitation", "without entrance",
+        # Hindi / Hinglish
+        "direct admission", "management quota",
+        "management seat", "bina entrance", "bina exam",
+        "donation se", "sidha admission", "seedha admission",
+        "management se", "quota se admission",
+    ]
+    # Build a single regex (case-insensitive) for efficient matching
+    _da_pattern = re.compile(
+        "|".join(re.escape(kw) for kw in DA_KEYWORDS), re.IGNORECASE
+    )
+
+    da_calls: list[dict] = []
+    keyword_counter: Counter = Counter()
+
+    for r in all_records:
+        tr = transcript_map.get(r["id"])
+        if not tr:
+            continue
+
+        # Search every turn for keyword matches
+        matched_turns: list[dict] = []
+        call_keywords: set = set()
+        for idx, turn in enumerate(tr.get("turns", [])):
+            matches = _da_pattern.findall(turn["text"])
+            if matches:
+                normalised = {m.lower() for m in matches}
+                call_keywords.update(normalised)
+                # Include ±2 surrounding turns for context
+                ctx_start = max(0, idx - 2)
+                ctx_end = min(len(tr["turns"]), idx + 3)
+                context_turns = [
+                    {
+                        "speaker": t["speaker"],
+                        "text": t["text"],
+                        "time": t.get("start_time", ""),
+                        "is_match": bool(_da_pattern.search(t["text"])),
+                    }
+                    for t in tr["turns"][ctx_start:ctx_end]
+                ]
+                matched_turns.append({
+                    "turn_index": idx,
+                    "speaker": turn["speaker"],
+                    "text": turn["text"],
+                    "time": turn.get("start_time", ""),
+                    "keywords_found": sorted(normalised),
+                    "context": context_turns,
+                })
+
+        # Also check analysis text (summary, queries, objections) for extra signal
+        analysis_mentions: list[dict] = []
+        if r.get("analysis"):
+            an = r["analysis"]
+            # Summary
+            if _da_pattern.search(an.get("summary", "")):
+                analysis_mentions.append({
+                    "source": "summary",
+                    "text": an["summary"],
+                })
+            # Query buckets
+            for q in an.get("query_buckets", []):
+                combined = f'{q.get("query","")} {q.get("quote","")} {q.get("translation","")}'
+                if _da_pattern.search(combined):
+                    analysis_mentions.append({
+                        "source": "student_query",
+                        "text": q.get("translation") or q.get("query", ""),
+                        "quote": q.get("quote", ""),
+                        "bucket": q.get("bucket", ""),
+                    })
+            # Objections
+            for o in an.get("objections", []):
+                combined = f'{o.get("objection","")} {o.get("handling_strategy","")} {o.get("student_quote","")} {o.get("counsellor_quote","")}'
+                if _da_pattern.search(combined):
+                    analysis_mentions.append({
+                        "source": "objection",
+                        "text": o.get("objection", ""),
+                        "handling": o.get("handling_strategy", ""),
+                        "student_quote": o.get("student_quote", ""),
+                        "counsellor_quote": o.get("counsellor_quote", ""),
+                    })
+
+        if matched_turns or analysis_mentions:
+            for kw in call_keywords:
+                keyword_counter[kw] += 1
+
+            meta = r.get("metadata", {})
+            entry = {
+                "id": r["id"],
+                "counsellor": meta.get("counsellor_name", "Unknown"),
+                "team": meta.get("team_name", "Unknown"),
+                "duration": meta.get("duration", 0),
+                "stage": meta.get("stage_name", "Unknown"),
+                "course": r["analysis"]["student_profile"].get("course_interest", "N/A") if r.get("analysis") else "N/A",
+                "outcome": r["analysis"]["call_outcome"]["primary_outcome"] if r.get("analysis") else "unknown",
+                "summary": r["analysis"].get("summary", "") if r.get("analysis") else "",
+                "keywords_found": sorted(call_keywords),
+                "matched_turns": matched_turns,
+                "analysis_mentions": analysis_mentions,
+                "colleges_discussed": [
+                    c["name"] for c in (r["analysis"].get("colleges_discussed", []) if r.get("analysis") else [])
+                ],
+            }
+            da_calls.append(entry)
+
+    # Who initiates the topic more — student or counsellor?
+    speaker_counter: Counter = Counter()
+    for call in da_calls:
+        for mt in call["matched_turns"]:
+            speaker_counter[mt["speaker"]] += 1
+
+    a["direct_admissions"] = {
+        "total_flagged": len(da_calls),
+        "pct_of_calls": round(len(da_calls) / max(len(all_records), 1) * 100, 1),
+        "keyword_breakdown": dict(keyword_counter.most_common()),
+        "initiated_by": dict(speaker_counter.most_common()),
+        "calls": da_calls,
+    }
+
     # ---- Bot Learnings -----------------------------------------------------
     learnings: list[str] = []
     for r in results:
@@ -405,6 +529,11 @@ async def api_bot_playbook():
 @app.get("/api/institute-usps")
 async def api_institute_usps():
     return store.get("institute_usps", {})
+
+
+@app.get("/api/direct-admissions")
+async def api_direct_admissions():
+    return store["agg"].get("direct_admissions", {})
 
 
 @app.get("/api/institute-usps/{college_name:path}")
