@@ -121,8 +121,8 @@ def analyze_urgency(analysis_results: list) -> dict:
             "decision_stage": decision_stage,
             "caller_type": caller_type,
             "all_tactics": tactics,
-            "counsellor": r.get("metadata", {}).get("counsellor_name", "Unknown"),
-            "duration": r.get("metadata", {}).get("duration", 0),
+            "counsellor": (r.get("metadata") or {}).get("counsellor_name", "Unknown"),
+            "duration": (r.get("metadata") or {}).get("duration", 0),
         }
 
         urgency_tactics = [t for t in a.get("counsellor_tactics", []) if t["tactic"] == "Urgency Creation"]
@@ -246,8 +246,8 @@ def aggregate_gender_insights(gender_results: list, analysis_results: list) -> d
             "tactics": [t["tactic"] for t in a.get("counsellor_tactics", [])],
             "objection_types": [o["objection_type"] for o in a.get("objections", [])],
             "colleges_recommended": [c["name"] for c in a.get("colleges_discussed", []) if c.get("was_recommended")],
-            "duration": analysis.get("metadata", {}).get("duration", 0),
-            "counsellor": analysis.get("metadata", {}).get("counsellor_name", "Unknown"),
+            "duration": (analysis.get("metadata") or {}).get("duration", 0),
+            "counsellor": (analysis.get("metadata") or {}).get("counsellor_name", "Unknown"),
             "evidence": gr["gender"].get("student_gender_evidence", []),
             "student_name": gr["gender"].get("student_name_mentioned"),
             "gendered_terms": gr["gender"].get("gendered_terms_found", []),
