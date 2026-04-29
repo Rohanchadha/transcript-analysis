@@ -176,6 +176,52 @@ body {
   color: #fff;
 }
 
+/* ---- Collapsible institute cards ---- */
+.usp-card-header {
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+.usp-card-header:hover {
+  opacity: 0.85;
+}
+.usp-chevron {
+  font-size: 0.75rem;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.usp-card-body {
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+.usp-card-body.hidden {
+  display: none;
+}
+
+/* ---- Course pills ---- */
+.course-pill {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.course-pill:hover {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: #7dd3fc;
+}
+.course-pill.active {
+  background: #059669;
+  color: #fff;
+  border-color: #059669;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .stat-value { font-size: 1.5rem; }

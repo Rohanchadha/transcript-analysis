@@ -41,6 +41,7 @@ function initTabs() {
       if (target === 'objections' && !window._objectionsInit) { initObjections(); window._objectionsInit = true; }
       if (target === 'flow' && !window._flowInit) { initFlow(); window._flowInit = true; }
       if (target === 'explorer' && !window._explorerInit) { initExplorer(); window._explorerInit = true; }
+      if (target === 'institutes' && !window._institutesInit) { initInstitutes(); window._institutesInit = true; }
       if (target === 'playbook' && !window._playbookInit) { initPlaybook(); window._playbookInit = true; }
     });
   });
@@ -439,6 +440,334 @@ async function openTranscript(callId) {
 
 function closeModal() {
   $('#transcript-modal').classList.add('hidden');
+}
+
+/* ==================================================================== */
+/*  INSTITUTE USPs TAB                                                   */
+/* ==================================================================== */
+let uspData = {};
+let uspEntries = [];
+
+function initInstitutes() {
+  uspData = D.institute_usps || {};
+  uspEntries = Object.entries(uspData).map(([name, data]) => ({ name, ...data }));
+
+  // Stats
+  const totalInstitutes = uspEntries.length;
+  const totalUSPs = uspEntries.reduce((s, e) => s + e.pitch_points.length, 0);
+  const totalFees = uspEntries.reduce((s, e) => s + e.fee_details.length, 0);
+  const avgUSPs = totalInstitutes ? (totalUSPs / totalInstitutes).toFixed(1) : 0;
+
+  $('#usp-stat-total').textContent = fmt(totalInstitutes);
+  $('#usp-stat-usps').textContent = fmt(totalUSPs);
+  $('#usp-stat-fees').textContent = fmt(totalFees);
+  $('#usp-stat-avg').textContent = avgUSPs;
+
+  // Chart: Top 15 by mentions
+  const top15 = uspEntries.slice(0, 15);
+  chartHBar('chart-usp-mentions',
+    top15.map(e => e.name.length > 30 ? e.name.slice(0, 28) + '…' : e.name),
+    top15.map(e => e.mention_count),
+    'Top 15 Institutes by Mentions in Calls'
+  );
+
+  // Chart: USP categories distribution
+  const catCounts = {};
+  uspEntries.forEach(e => {
+    e.pitch_points.forEach(pp => {
+      const cat = pp.category || 'other';
+      catCounts[cat] = (catCounts[cat] || 0) + 1;
+    });
+  });
+  const catSorted = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+  chartHBar('chart-usp-categories',
+    catSorted.map(([c]) => c.replace(/_/g, ' ')),
+    catSorted.map(([, v]) => v),
+    'USP Categories Across All Institutes'
+  );
+
+  // Build course pills
+  buildCoursePills();
+
+  // Render cards
+  renderUSPCards(uspEntries);
+
+  // Search
+  $('#usp-search').addEventListener('input', () => filterAndRenderUSPs());
+  $('#usp-sort').addEventListener('change', () => filterAndRenderUSPs());
+}
+
+let activeCoursePill = null;
+
+function buildCoursePills() {
+  const courseCounts = {};
+  uspEntries.forEach(e => {
+    (e.courses_discussed || []).forEach(c => {
+      // Normalize to base course (strip specialization)
+      const base = normalizeBaseCourse(c);
+      courseCounts[base] = (courseCounts[base] || 0) + 1;
+    });
+  });
+  const sorted = Object.entries(courseCounts).sort((a, b) => b[1] - a[1]);
+  const container = $('#usp-course-pills');
+  container.innerHTML = '';
+
+  // "All" pill
+  const allPill = document.createElement('button');
+  allPill.className = 'course-pill active';
+  allPill.textContent = `All (${uspEntries.length})`;
+  allPill.addEventListener('click', () => {
+    activeCoursePill = null;
+    $$('.course-pill').forEach(p => p.classList.remove('active'));
+    allPill.classList.add('active');
+    filterAndRenderUSPs();
+  });
+  container.appendChild(allPill);
+
+  sorted.forEach(([course, count]) => {
+    const pill = document.createElement('button');
+    pill.className = 'course-pill';
+    pill.textContent = `${course} (${count})`;
+    pill.addEventListener('click', () => {
+      activeCoursePill = course;
+      $$('.course-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      filterAndRenderUSPs();
+    });
+    container.appendChild(pill);
+  });
+}
+
+function normalizeBaseCourse(course) {
+  const c = course.trim();
+  // Match common base courses
+  if (/^B\.?\s*Tech/i.test(c)) return 'B.Tech';
+  if (/^M\.?\s*Tech/i.test(c)) return 'M.Tech';
+  if (/^B\.?\s*Pharma/i.test(c)) return 'B.Pharma';
+  if (/^D\.?\s*Pharma/i.test(c)) return 'D.Pharma';
+  if (/^M\.?\s*Pharma/i.test(c)) return 'M.Pharma';
+  if (/^BBA/i.test(c)) return 'BBA';
+  if (/^MBA/i.test(c)) return 'MBA';
+  if (/^BCA/i.test(c)) return 'BCA';
+  if (/^MCA/i.test(c)) return 'MCA';
+  if (/^B\.?\s*D\.?\s*S/i.test(c)) return 'BDS';
+  if (/^MBBS/i.test(c)) return 'MBBS';
+  if (/^B\.?\s*Sc/i.test(c)) return 'B.Sc';
+  if (/^M\.?\s*Sc/i.test(c)) return 'M.Sc';
+  if (/^B\.?\s*Com/i.test(c)) return 'B.Com';
+  if (/^BA\b/i.test(c)) return 'BA';
+  if (/^MA\b/i.test(c)) return 'MA';
+  if (/^B\.?\s*Des/i.test(c)) return 'B.Des';
+  if (/^LLB/i.test(c)) return 'LLB';
+  if (/^LLM/i.test(c)) return 'LLM';
+  if (/^PGDM/i.test(c)) return 'PGDM';
+  if (/^B\.?\s*Ed/i.test(c)) return 'B.Ed';
+  if (/^BMLT/i.test(c)) return 'BMLT';
+  if (/^DMLT/i.test(c)) return 'DMLT';
+  if (/^GNM/i.test(c)) return 'GNM';
+  if (/^B\.?\s*Sc.*Nurs/i.test(c)) return 'B.Sc Nursing';
+  return c;
+}
+
+function filterAndRenderUSPs() {
+  const q = ($('#usp-search').value || '').toLowerCase();
+  const sort = $('#usp-sort').value;
+
+  let filtered = uspEntries;
+
+  // Course pill filter
+  if (activeCoursePill) {
+    filtered = filtered.filter(e =>
+      (e.courses_discussed || []).some(c => normalizeBaseCourse(c) === activeCoursePill)
+    );
+  }
+
+  if (q) {
+    filtered = filtered.filter(e =>
+      e.name.toLowerCase().includes(q) ||
+      (e.aliases || []).some(a => a.toLowerCase().includes(q)) ||
+      (e.location || '').toLowerCase().includes(q) ||
+      (e.courses_discussed || []).some(c => c.toLowerCase().includes(q)) ||
+      e.pitch_points.some(pp => pp.claim.toLowerCase().includes(q))
+    );
+  }
+
+  if (sort === 'usps') filtered = [...filtered].sort((a, b) => b.pitch_points.length - a.pitch_points.length);
+  else if (sort === 'name') filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+  // default is mentions (already sorted)
+
+  renderUSPCards(filtered);
+}
+
+function renderUSPCards(entries) {
+  const container = $('#usp-cards');
+  container.innerHTML = '';
+  $('#usp-institute-count').textContent = entries.length;
+
+  entries.forEach((inst, i) => {
+    const card = document.createElement('div');
+    card.className = 'insight-card usp-card-collapsible';
+    card.style.borderLeftColor = COLORS[i % COLORS.length];
+
+    // Filter internals by active course pill
+    const courseFilter = activeCoursePill;
+    const matchingCourses = courseFilter
+      ? (inst.courses_discussed || []).filter(c => normalizeBaseCourse(c) === courseFilter)
+      : (inst.courses_discussed || []);
+    const filteredFees = courseFilter
+      ? inst.fee_details.filter(f => matchingCourses.some(mc => (f.course || '').toLowerCase().includes(mc.toLowerCase()) || mc.toLowerCase().includes((f.course || '').toLowerCase())) || !f.course)
+      : inst.fee_details;
+    const filteredPP = courseFilter
+      ? inst.pitch_points.filter(pp => {
+          const claim = (pp.claim || '').toLowerCase();
+          const quote = (pp.counsellor_quote_hindi || '').toLowerCase();
+          return matchingCourses.some(mc => claim.includes(mc.toLowerCase()) || quote.includes(mc.toLowerCase())) ||
+                 !matchingCourses.length ||
+                 !(pp.category === 'fee' || pp.category === 'admission_process' || pp.category === 'eligibility' || pp.category === 'exam_cutoff') ||
+                 matchingCourses.length === (inst.courses_discussed || []).length;
+        })
+      : inst.pitch_points;
+
+    // Header — always visible, acts as toggle
+    let headerHTML = `
+      <div class="usp-card-header" onclick="toggleUSPCard(this)">
+        <div class="flex flex-col md:flex-row md:items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="usp-chevron text-slate-400">▶</span>
+            <div>
+              <h4 class="font-bold text-lg text-slate-800">${h(inst.name)}</h4>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${inst.location && inst.location !== 'not_mentioned' ? `<span class="badge badge-slate">📍 ${h(inst.location.length > 60 ? inst.location.slice(0, 57) + '…' : inst.location)}</span>` : ''}
+                ${(inst.aliases || []).map(a => `<span class="badge badge-slate">${h(a)}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-2 md:mt-0">
+            <span class="badge badge-indigo">${inst.mention_count} mentions</span>
+            <span class="badge badge-green">${filteredPP.length} USPs</span>
+            ${filteredFees.length ? `<span class="badge badge-amber">${filteredFees.length} fee entries</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+
+    // Body — collapsed by default
+    let bodyParts = [];
+
+    // Recommendation context (moved higher)
+    if (inst.recommendation_contexts?.length) {
+      const uniqueCtx = [...new Set(inst.recommendation_contexts)].slice(0, 3);
+      bodyParts.push(`<div class="mb-3">
+        <span class="text-xs font-semibold text-slate-500 uppercase">Why Counsellors Recommend This</span>
+        <div class="mt-1">${uniqueCtx.map(ctx => `<div class="text-sm text-slate-600 mb-1">→ ${h(ctx)}</div>`).join('')}</div>
+      </div>`);
+    }
+
+    // Courses
+    if (matchingCourses.length) {
+      bodyParts.push(`<div class="mb-3">
+        <span class="text-xs font-semibold text-slate-500 uppercase">Courses discussed:</span>
+        <div class="flex flex-wrap gap-1 mt-1">${matchingCourses.map(c => `<span class="badge badge-indigo">${h(c)}</span>`).join('')}</div>
+      </div>`);
+    }
+
+    // Fee details table
+    if (filteredFees.length) {
+      bodyParts.push(`<div class="mb-3">
+        <span class="text-xs font-semibold text-slate-500 uppercase">Fee Information</span>
+        <table class="data-table mt-1"><thead><tr><th>Course</th><th>Amount</th><th>Type</th><th>Notes</th></tr></thead><tbody>
+        ${filteredFees.map(f => `<tr>
+          <td>${h(f.course || '-')}</td>
+          <td class="font-semibold">${h(f.amount || '-')}</td>
+          <td><span class="badge badge-slate">${h((f.fee_type || 'not_specified').replace(/_/g, ' '))}</span></td>
+          <td class="text-xs text-slate-500">${h(f.additional_info || '-')}</td>
+        </tr>`).join('')}
+        </tbody></table>
+      </div>`);
+    }
+
+    // Placement details
+    const pd = inst.placement_details || {};
+    const hasPlacement = pd.highest_package !== 'not_mentioned' || pd.average_package !== 'not_mentioned' ||
+                         pd.placement_percentage !== 'not_mentioned' || (pd.top_recruiters?.length) || (pd.sectors?.length);
+    if (hasPlacement) {
+      bodyParts.push(`<div class="mb-3">
+        <span class="text-xs font-semibold text-slate-500 uppercase">Placement Data</span>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+          ${pd.highest_package !== 'not_mentioned' ? `<div class="card-sm bg-green-50"><div class="text-xs text-slate-500">Highest Package</div><div class="text-sm font-bold text-green-700">${h(pd.highest_package)}</div></div>` : ''}
+          ${pd.average_package !== 'not_mentioned' ? `<div class="card-sm bg-blue-50"><div class="text-xs text-slate-500">Average Package</div><div class="text-sm font-bold text-blue-700">${h(pd.average_package)}</div></div>` : ''}
+          ${pd.placement_percentage !== 'not_mentioned' ? `<div class="card-sm bg-purple-50"><div class="text-xs text-slate-500">Placement %</div><div class="text-sm font-bold text-purple-700">${h(pd.placement_percentage)}</div></div>` : ''}
+          ${pd.top_recruiters?.length ? `<div class="card-sm bg-amber-50"><div class="text-xs text-slate-500">Top Recruiters</div><div class="text-sm font-semibold text-amber-700">${pd.top_recruiters.map(h).join(', ')}</div></div>` : ''}
+        </div>
+      </div>`);
+    }
+
+    // Pitch points
+    const INITIAL_PP = 3;
+    const ppToShow = filteredPP.slice(0, INITIAL_PP);
+    const hasMorePP = filteredPP.length > INITIAL_PP;
+    const uid = `usp-${i}`;
+
+    if (filteredPP.length) {
+      bodyParts.push(`<div class="mb-2">
+        <span class="text-xs font-semibold text-slate-500 uppercase">Pitch Points from Counsellors</span>
+        <div class="space-y-2 mt-1" id="${uid}-pp-list">
+          ${ppToShow.map(pp => renderPitchPoint(pp)).join('')}
+        </div>
+        ${hasMorePP ? `<div id="${uid}-pp-toggle"><button class="text-sm text-emerald-600 hover:text-emerald-800 font-medium mt-2 cursor-pointer" onclick="event.stopPropagation();toggleUSPPitchPoints('${uid}', ${i})">▼ Show ${filteredPP.length - INITIAL_PP} more pitch points</button></div>` : ''}
+      </div>`);
+    }
+
+    card.innerHTML = headerHTML + `<div class="usp-card-body hidden">${bodyParts.join('')}</div>`;
+    container.appendChild(card);
+  });
+}
+
+function toggleUSPCard(headerEl) {
+  const card = headerEl.closest('.usp-card-collapsible');
+  const body = card.querySelector('.usp-card-body');
+  const chevron = card.querySelector('.usp-chevron');
+  body.classList.toggle('hidden');
+  chevron.textContent = body.classList.contains('hidden') ? '▶' : '▼';
+}
+
+function renderPitchPoint(pp) {
+  const catColors = {
+    placement: 'badge-green', fee: 'badge-amber', scholarship: 'badge-amber',
+    infrastructure: 'badge-indigo', ranking: 'badge-indigo', accreditation: 'badge-indigo',
+    admission_process: 'badge-slate', hostel: 'badge-slate', location_advantage: 'badge-slate',
+    industry_tie_up: 'badge-green', faculty: 'badge-indigo', alumni: 'badge-indigo',
+  };
+  const badgeClass = catColors[pp.category] || 'badge-slate';
+  const transcriptLink = pp.source_call
+    ? `<a href="#" onclick="event.preventDefault();event.stopPropagation();openTranscript('${(pp.source_call || '').replace(/'/g, "\\'")}')" class="text-indigo-500 hover:text-indigo-700 ml-1" title="Listen to source call">🎧</a>`
+    : '';
+  return `<div class="pl-3 border-l-2 border-emerald-200">
+    <div class="flex items-start gap-2">
+      <span class="badge ${badgeClass} mt-0.5">${h((pp.category || 'other').replace(/_/g, ' '))}</span>
+      <div class="text-sm text-slate-700 font-medium flex-1">${h(pp.claim)}${transcriptLink}</div>
+    </div>
+    ${pp.counsellor_quote_hindi ? `<div class="quote text-xs mt-1">"${h(pp.counsellor_quote_hindi)}"</div>` : ''}
+    ${pp.translation ? `<div class="translation text-xs">→ ${h(pp.translation)}</div>` : ''}
+  </div>`;
+}
+
+function toggleUSPPitchPoints(uid, idx) {
+  const listEl = document.getElementById(`${uid}-pp-list`);
+  const toggleEl = document.getElementById(`${uid}-pp-toggle`);
+  const isExpanded = toggleEl.dataset.expanded === '1';
+  const inst = uspEntries[idx];
+  const pp = inst.pitch_points;
+  const INITIAL_PP = 3;
+
+  if (isExpanded) {
+    listEl.innerHTML = pp.slice(0, INITIAL_PP).map(p => renderPitchPoint(p)).join('');
+    toggleEl.innerHTML = `<button class="text-sm text-emerald-600 hover:text-emerald-800 font-medium mt-2 cursor-pointer" onclick="event.stopPropagation();toggleUSPPitchPoints('${uid}', ${idx})">▼ Show ${pp.length - INITIAL_PP} more pitch points</button>`;
+    toggleEl.dataset.expanded = '0';
+  } else {
+    listEl.innerHTML = pp.map(p => renderPitchPoint(p)).join('');
+    toggleEl.innerHTML = `<button class="text-sm text-emerald-600 hover:text-emerald-800 font-medium mt-2 cursor-pointer" onclick="event.stopPropagation();toggleUSPPitchPoints('${uid}', ${idx})">▲ Collapse (${pp.length} shown)</button>`;
+    toggleEl.dataset.expanded = '1';
+  }
 }
 
 /* ==================================================================== */

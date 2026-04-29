@@ -13,7 +13,10 @@ import os
 import time
 from pathlib import Path
 
+from dotenv import load_dotenv
 from openai import OpenAI
+
+load_dotenv()
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 PARSED_PATH = ROOT_DIR / "data" / "parsed_transcripts.json"

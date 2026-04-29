@@ -42,6 +42,7 @@ def _safe(obj) -> str:
 def load_data():
     analysis_path = DATA_DIR / "analysis_results.json"
     parsed_path = DATA_DIR / "parsed_transcripts.json"
+    usps_path = DATA_DIR / "institute_usps.json"
 
     if parsed_path.exists():
         with open(parsed_path, "r", encoding="utf-8") as f:
@@ -50,6 +51,10 @@ def load_data():
     if analysis_path.exists():
         with open(analysis_path, "r", encoding="utf-8") as f:
             store["analysis"] = json.load(f)
+
+    if usps_path.exists():
+        with open(usps_path, "r", encoding="utf-8") as f:
+            store["institute_usps"] = json.load(f)
 
     aggregate_data()
 
@@ -306,6 +311,9 @@ def aggregate_data():
     a["call_list"] = call_list
 
     store["agg"] = a
+    # Attach institute USPs if loaded
+    if store.get("institute_usps"):
+        store["agg"]["institute_usps"] = store["institute_usps"]
 
 
 # ---------------------------------------------------------------------------
@@ -392,3 +400,25 @@ async def api_bot_playbook():
         "call_flow": a.get("call_flow", {}),
         "colleges": a.get("colleges", {}),
     }
+
+
+@app.get("/api/institute-usps")
+async def api_institute_usps():
+    return store.get("institute_usps", {})
+
+
+@app.get("/api/institute-usps/{college_name:path}")
+async def api_institute_usp_detail(college_name: str):
+    usps = store.get("institute_usps", {})
+    # Exact match first
+    if college_name in usps:
+        return usps[college_name]
+    # Case-insensitive search
+    key_lower = college_name.lower()
+    for name, data in usps.items():
+        if name.lower() == key_lower:
+            return data
+        # Check aliases
+        if any(a.lower() == key_lower for a in data.get("aliases", [])):
+            return data
+    return JSONResponse({"error": "Institute not found"}, status_code=404)
