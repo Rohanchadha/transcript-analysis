@@ -237,6 +237,14 @@ def main():
             errors += 1
             time.sleep(2)
 
+    # Preserve existing results not in current parsed set (avoid data loss)
+    current_ids = set(r["id"] for r in results)
+    preserved = 0
+    for eid, eresult in existing_results.items():
+        if eid not in current_ids:
+            results.append(eresult)
+            preserved += 1
+
     # Final save
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
@@ -245,6 +253,7 @@ def main():
     print(f"DONE!")
     print(f"  Analyzed: {analyzed}")
     print(f"  Skipped (existing + short): {skipped}")
+    print(f"  Preserved (not in current parse): {preserved}")
     print(f"  Errors: {errors}")
     print(f"  Total: {len(results)}")
     print(f"  Saved to {OUTPUT_PATH}")

@@ -43,6 +43,7 @@ function initTabs() {
       if (target === 'explorer' && !window._explorerInit) { initExplorer(); window._explorerInit = true; }
       if (target === 'direct-admissions' && !window._daInit) { initDirectAdmissions(); window._daInit = true; }
       if (target === 'institutes' && !window._institutesInit) { initInstitutes(); window._institutesInit = true; }
+      if (target === 'deepdive' && !window._deepdiveInit) { initDeepDive(); window._deepdiveInit = true; }
       if (target === 'playbook' && !window._playbookInit) { initPlaybook(); window._playbookInit = true; }
     });
   });
@@ -314,19 +315,28 @@ function initExplorer() {
   explorerData = D.call_list || [];
   renderExplorerTable(explorerData);
 
-  // search
-  $('#explorer-search').addEventListener('input', e => {
-    const q = e.target.value.toLowerCase();
-    const filtered = explorerData.filter(c =>
-      c.counsellor.toLowerCase().includes(q) ||
-      c.course.toLowerCase().includes(q) ||
-      c.summary.toLowerCase().includes(q) ||
-      c.team.toLowerCase().includes(q) ||
-      c.stage.toLowerCase().includes(q) ||
-      (c.buckets || []).join(' ').toLowerCase().includes(q)
-    );
+  const filterExplorer = () => {
+    const q = ($('#explorer-search').value || '').toLowerCase();
+    const gender = $('#explorer-gender').value;
+    let filtered = explorerData;
+    if (gender !== 'all') {
+      filtered = filtered.filter(c => (c.student_gender || 'unclear') === gender);
+    }
+    if (q) {
+      filtered = filtered.filter(c =>
+        c.counsellor.toLowerCase().includes(q) ||
+        c.course.toLowerCase().includes(q) ||
+        c.summary.toLowerCase().includes(q) ||
+        c.team.toLowerCase().includes(q) ||
+        c.stage.toLowerCase().includes(q) ||
+        (c.buckets || []).join(' ').toLowerCase().includes(q)
+      );
+    }
     renderExplorerTable(filtered);
-  });
+  };
+
+  $('#explorer-search').addEventListener('input', filterExplorer);
+  $('#explorer-gender').addEventListener('change', filterExplorer);
 }
 
 function renderExplorerTable(data) {
@@ -958,6 +968,99 @@ function toggleUSPPitchPoints(uid, idx) {
     toggleEl.innerHTML = `<button class="text-sm text-emerald-600 hover:text-emerald-800 font-medium mt-2 cursor-pointer" onclick="event.stopPropagation();toggleUSPPitchPoints('${uid}', ${idx})">▲ Collapse (${pp.length} shown)</button>`;
     toggleEl.dataset.expanded = '1';
   }
+}
+
+/* ==================================================================== */
+/*  DEEP DIVE INSIGHTS TAB                                               */
+/* ==================================================================== */
+function initDeepDive() {
+  const dd = D.deep_dive || {};
+  const urg = dd.urgency_analysis || {};
+
+  // Urgency types donut
+  const urgTypes = urg.urgency_types || {};
+  if (Object.keys(urgTypes).length) {
+    chartDonut('chart-urg-types', urgTypes, 'Urgency Type Breakdown');
+  }
+
+  // Key finding + stats summary
+  const uw = urg.with_urgency || {};
+  const un = urg.without_urgency || {};
+  const findingEl = $('#dd-urg-finding');
+  let findingHTML = '';
+  if (urg.key_finding) {
+    findingHTML += `<div class="text-sm text-orange-800 bg-orange-50 border border-orange-100 rounded-lg px-4 py-3 mb-3">
+      <strong>🔑 Key Finding:</strong> ${h(urg.key_finding)}</div>`;
+  }
+  findingHTML += `<div class="grid grid-cols-2 gap-3">
+    <div class="card-sm bg-orange-50 text-center"><div class="text-xs text-slate-500">App Rate (With Urgency)</div><div class="text-lg font-bold text-orange-600">${uw.application_rate || 0}%</div><div class="text-xs text-slate-400">${uw.count || 0} calls</div></div>
+    <div class="card-sm bg-slate-50 text-center"><div class="text-xs text-slate-500">App Rate (No Urgency)</div><div class="text-lg font-bold text-slate-500">${un.application_rate || 0}%</div><div class="text-xs text-slate-400">${un.count || 0} calls</div></div>
+    <div class="card-sm bg-blue-50 text-center"><div class="text-xs text-slate-500">WhatsApp (With Urgency)</div><div class="text-lg font-bold text-blue-600">${uw.whatsapp_rate || 0}%</div></div>
+    <div class="card-sm bg-slate-50 text-center"><div class="text-xs text-slate-500">WhatsApp (No Urgency)</div><div class="text-lg font-bold text-slate-500">${un.whatsapp_rate || 0}%</div></div>
+  </div>`;
+  findingEl.innerHTML = findingHTML;
+
+  // Urgency examples with filter pills
+  const allExamples = urg.urgency_examples || [];
+  window._urgExamples = allExamples;
+  window._activeUrgType = null;
+
+  // Classify each example
+  allExamples.forEach(ex => {
+    const desc = ((ex.description || '') + ' ' + (ex.translation || '')).toLowerCase();
+    if (['deadline','last date','closing','expire','ending','last day'].some(w => desc.includes(w))) ex._type = 'deadline';
+    else if (['seat','limited','few left','filling','slot'].some(w => desc.includes(w))) ex._type = 'limited_seats';
+    else if (['waive','free','discount','offer','scholarship','coupon'].some(w => desc.includes(w))) ex._type = 'fee_waiver_expiring';
+    else if (['competition','demand','popular','rush','many student'].some(w => desc.includes(w))) ex._type = 'competition';
+    else ex._type = 'other';
+  });
+
+  // Build pills
+  const pillContainer = $('#dd-urg-pills');
+  const typeLabels = { deadline: '📅 Deadline', limited_seats: '💺 Limited Seats', fee_waiver_expiring: '🎁 Fee Waiver/Offer', competition: '🏃 Competition', other: '📌 Other' };
+  const typeCounts = {};
+  allExamples.forEach(ex => { typeCounts[ex._type] = (typeCounts[ex._type] || 0) + 1; });
+
+  // All pill
+  const allPill = document.createElement('button');
+  allPill.className = 'course-pill active';
+  allPill.textContent = `All (${allExamples.length})`;
+  allPill.addEventListener('click', () => { window._activeUrgType = null; $$('.urg-pill').forEach(p => p.classList.remove('active')); allPill.classList.add('active'); renderUrgExamples(); });
+  allPill.classList.add('urg-pill');
+  pillContainer.appendChild(allPill);
+
+  Object.entries(typeLabels).forEach(([type, label]) => {
+    const count = typeCounts[type] || 0;
+    if (!count) return;
+    const pill = document.createElement('button');
+    pill.className = 'course-pill urg-pill';
+    pill.textContent = `${label} (${count})`;
+    pill.addEventListener('click', () => { window._activeUrgType = type; $$('.urg-pill').forEach(p => p.classList.remove('active')); pill.classList.add('active'); renderUrgExamples(); });
+    pillContainer.appendChild(pill);
+  });
+
+  renderUrgExamples();
+}
+
+function renderUrgExamples() {
+  const examples = window._urgExamples || [];
+  const filter = window._activeUrgType;
+  const filtered = filter ? examples.filter(ex => ex._type === filter) : examples;
+  const exEl = $('#dd-urg-examples');
+
+  exEl.innerHTML = filtered.map(ex => {
+    const outcomeColor = ex.app_started ? 'badge-green' : 'badge-slate';
+    return `<div class="pl-3 border-l-2 border-orange-200">
+      <div class="text-sm text-slate-700 font-medium">${h(ex.description)}</div>
+      <div class="quote text-xs mt-1">"${h(ex.quote)}"</div>
+      <div class="translation text-xs">→ ${h(ex.translation)}</div>
+      <div class="flex gap-2 mt-1">
+        <span class="badge ${outcomeColor}">${h(ex.outcome.replace(/_/g, ' '))}</span>
+        <span class="text-xs text-slate-400">— ${h(ex.counsellor)}</span>
+        <a href="#" onclick="event.preventDefault();openTranscript('${ex.call_id.replace(/'/g, "\\'")}')" class="text-indigo-500 hover:text-indigo-700 text-xs">🎧 Listen</a>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ==================================================================== */

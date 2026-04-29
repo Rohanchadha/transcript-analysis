@@ -56,6 +56,11 @@ def load_data():
         with open(usps_path, "r", encoding="utf-8") as f:
             store["institute_usps"] = json.load(f)
 
+    deep_dive_path = DATA_DIR / "deep_dive_insights.json"
+    if deep_dive_path.exists():
+        with open(deep_dive_path, "r", encoding="utf-8") as f:
+            store["deep_dive"] = json.load(f)
+
     aggregate_data()
 
 
@@ -408,6 +413,12 @@ def aggregate_data():
     a["bot_learnings"] = learnings
 
     # ---- Call List (for explorer) ------------------------------------------
+    # Build gender lookup from deep_dive data
+    gender_lookup = {}
+    if store.get("deep_dive"):
+        for gr in store["deep_dive"].get("gender_raw", []):
+            gender_lookup[gr["id"]] = gr.get("gender", {}).get("student_gender", "unclear")
+
     call_list = []
     for r in all_records:
         entry = {
@@ -419,6 +430,7 @@ def aggregate_data():
             "total_turns": r.get("stats", {}).get("total_turns", 0),
             "counsellor_words": r.get("stats", {}).get("counsellor_words", 0),
             "user_words": r.get("stats", {}).get("user_words", 0),
+            "student_gender": gender_lookup.get(r["id"], "unclear"),
         }
         if r.get("analysis"):
             an = r["analysis"]
@@ -438,6 +450,12 @@ def aggregate_data():
     # Attach institute USPs if loaded
     if store.get("institute_usps"):
         store["agg"]["institute_usps"] = store["institute_usps"]
+    # Attach deep dive insights if loaded
+    if store.get("deep_dive"):
+        store["agg"]["deep_dive"] = {
+            "urgency_analysis": store["deep_dive"].get("urgency_analysis", {}),
+            "gender_analysis": store["deep_dive"].get("gender_analysis", {}),
+        }
 
 
 # ---------------------------------------------------------------------------

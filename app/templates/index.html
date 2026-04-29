@@ -43,6 +43,7 @@
     <button class="tab-btn" data-tab="explorer">🔍 Transcript Explorer</button>
     <button class="tab-btn" data-tab="direct-admissions">⚠️ Direct Admissions</button>
     <button class="tab-btn" data-tab="institutes">🏫 Institute USPs</button>
+    <button class="tab-btn" data-tab="deepdive">🔬 Deep Dive</button>
     <button class="tab-btn" data-tab="playbook">🤖 Bot Playbook</button>
   </div>
 </nav>
@@ -209,7 +210,13 @@
         <p class="text-sm text-slate-500"><span id="explorer-count">-</span> — click any row to view full transcript &amp; analysis</p>
       </div>
       <input id="explorer-search" type="text" placeholder="Search by counsellor, course, team, stage…"
-             class="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 w-full md:w-80">
+             class="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 w-full md:w-64">
+      <select id="explorer-gender" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+        <option value="all">All Genders</option>
+        <option value="male">♂️ Male</option>
+        <option value="female">♀️ Female</option>
+        <option value="unclear">Unclear</option>
+      </select>
     </div>
     <div class="overflow-x-auto">
       <table class="data-table">
@@ -342,6 +349,28 @@
 
   <!-- Institute cards container -->
   <div id="usp-cards"></div>
+</section>
+
+<!-- ============================================================== -->
+<!-- TAB: DEEP DIVE INSIGHTS                                         -->
+<!-- ============================================================== -->
+<section id="tab-deepdive" class="tab-content">
+  <div class="bg-gradient-to-r from-rose-50 to-orange-50 border border-rose-100 rounded-xl p-6 mb-6">
+    <h2 class="text-xl font-bold text-rose-900 mb-1">🔬 Urgency Tactic Effectiveness</h2>
+    <p class="text-sm text-rose-700">When counsellors mention deadlines, limited seats, or expiring offers — does it actually drive applications?</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-6">
+    <div class="card"><div style="height:300px"><canvas id="chart-urg-types"></canvas></div></div>
+    <div class="card" id="dd-urg-finding"></div>
+  </div>
+
+  <!-- Urgency type filter pills -->
+  <div class="card mb-4">
+    <h3 class="text-lg font-semibold text-slate-800 mb-2">Urgency Tactic Examples</h3>
+    <div class="flex flex-wrap gap-1.5 mb-3" id="dd-urg-pills"></div>
+    <div id="dd-urg-examples" class="space-y-3"></div>
+  </div>
 </section>
 
 <!-- ============================================================== -->

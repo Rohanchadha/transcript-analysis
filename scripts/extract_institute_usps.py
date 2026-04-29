@@ -352,6 +352,14 @@ def main():
             errors += 1
             time.sleep(2)
 
+    # Preserve existing raw results not in current parsed set (avoid data loss)
+    current_ids = set(r["id"] for r in raw_results)
+    preserved = 0
+    for eid, eresult in existing_raw.items():
+        if eid not in current_ids:
+            raw_results.append(eresult)
+            preserved += 1
+
     # Save raw results
     with open(RAW_OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(raw_results, f, ensure_ascii=False, indent=2)
@@ -368,6 +376,7 @@ def main():
     print(f"DONE!")
     print(f"  Extracted: {extracted}")
     print(f"  Skipped: {skipped}")
+    print(f"  Preserved (not in current parse): {preserved}")
     print(f"  Errors: {errors}")
     print(f"  Unique institutes: {len(aggregated)}")
     print(f"  Raw output: {RAW_OUTPUT_PATH}")

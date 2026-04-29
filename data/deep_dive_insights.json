@@ -1,0 +1,3496 @@
+{
+  "urgency_analysis": {
+    "with_urgency": {
+      "count": 33,
+      "outcomes": {
+        "info_shared_interested": 27,
+        "application_started": 2,
+        "callback_scheduled": 4
+      },
+      "application_rate": 18.2,
+      "whatsapp_rate": 75.8,
+      "callback_rate": 12.1,
+      "avg_colleges_shortlisted": 2.2,
+      "avg_duration": 696.9
+    },
+    "without_urgency": {
+      "count": 75,
+      "outcomes": {
+        "info_shared_interested": 65,
+        "callback_scheduled": 5,
+        "application_started": 4,
+        "info_shared_lukewarm": 1
+      },
+      "application_rate": 9.3,
+      "whatsapp_rate": 56.0,
+      "callback_rate": 17.3,
+      "avg_colleges_shortlisted": 2.7,
+      "avg_duration": 631.0
+    },
+    "urgency_by_decision_stage": {
+      "actively_comparing": {
+        "count": 26,
+        "outcomes": {
+          "info_shared_interested": 23,
+          "application_started": 1,
+          "callback_scheduled": 2
+        },
+        "application_rate": 11.5,
+        "whatsapp_rate": 80.8,
+        "callback_rate": 7.7,
+        "avg_colleges_shortlisted": 2.1,
+        "avg_duration": 697.8
+      },
+      "ready_to_apply": {
+        "count": 3,
+        "outcomes": {
+          "application_started": 1,
+          "info_shared_interested": 2
+        },
+        "application_rate": 100.0,
+        "whatsapp_rate": 0.0,
+        "callback_rate": 0.0,
+        "avg_colleges_shortlisted": 2.7,
+        "avg_duration": 775.3
+      },
+      "just_exploring": {
+        "count": 4,
+        "outcomes": {
+          "callback_scheduled": 2,
+          "info_shared_interested": 2
+        },
+        "application_rate": 0.0,
+        "whatsapp_rate": 100.0,
+        "callback_rate": 50.0,
+        "avg_colleges_shortlisted": 2.8,
+        "avg_duration": 632.6
+      }
+    },
+    "urgency_by_caller_type": {
+      "student": {
+        "count": 30,
+        "outcomes": {
+          "info_shared_interested": 25,
+          "application_started": 2,
+          "callback_scheduled": 3
+        },
+        "application_rate": 16.7,
+        "whatsapp_rate": 73.3,
+        "callback_rate": 10.0,
+        "avg_colleges_shortlisted": 2.1,
+        "avg_duration": 724.5
+      },
+      "parent": {
+        "count": 3,
+        "outcomes": {
+          "info_shared_interested": 2,
+          "callback_scheduled": 1
+        },
+        "application_rate": 33.3,
+        "whatsapp_rate": 100.0,
+        "callback_rate": 33.3,
+        "avg_colleges_shortlisted": 4.0,
+        "avg_duration": 420.6
+      }
+    },
+    "urgency_types": {
+      "deadline": 8,
+      "limited_seats": 9,
+      "fee_waiver_expiring": 3,
+      "competition": 1,
+      "other": 12
+    },
+    "co_occurring_tactics": {
+      "Tiered College Recommendation": 23,
+      "Structured Qualification": 18,
+      "WhatsApp Handoff": 12,
+      "Empathy & Reassurance": 11,
+      "Multi-Option Strategy": 6,
+      "Placement Data Anchoring": 5,
+      "Friction Removal": 3,
+      "Rapport Building": 2,
+      "Application Push": 1,
+      "Reality Check": 1
+    },
+    "urgency_examples": [
+      {
+        "quote": "To jo abhi do char options available hai na colleges ke sir wo bhi close ho jayenge thode time mein.",
+        "translation": "The good options available now will also close in some time.",
+        "description": "The counsellor emphasized the importance of applying soon to avoid missing out on good options.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "1776774464428Call9571489868(9571489868)_20260421174221.mp3"
+      },
+      {
+        "quote": "Aapko pata hai na agar kisi bhi college mein admission lete hai aap itne padhe likhe to ho ki aapko pata hi hoga ki kisi bhi college mein admission ke liye humko sabse pehle application form ke through jaana hota hai.",
+        "translation": "You know that if you take admission in any college, you should know that we have to go through the application form first.",
+        "description": "Counsellor created a sense of urgency by stating the need to apply immediately.",
+        "outcome": "application_started",
+        "app_started": true,
+        "counsellor": "GAYATRI",
+        "call_id": "17768549505648240262639_2026-04-22_12-36-29.m4a"
+      },
+      {
+        "quote": "last date is somewhere around 25th of April.",
+        "translation": "The last date is around 25th of April.",
+        "description": "The counsellor informed about application deadlines to create urgency.",
+        "outcome": "callback_scheduled",
+        "app_started": false,
+        "counsellor": "GAYATRI",
+        "call_id": "17768549505889515079064_2026-04-22_15-58-04.m4a"
+      },
+      {
+        "quote": "Kam se kam do teen to application form fill up karoge tabhi to kyunki abhi C S E ke liye agar top branches ke liye aap dekh rahe ho to waise bhi eighty percent seats almost colleges me reserve ho chuki hai.",
+        "translation": "At least you need to fill up two to three application forms because for top branches in CSE, eighty percent seats are already reserved.",
+        "description": "Counsellor emphasized the need to apply soon due to limited seats.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "GAYATRI",
+        "call_id": "17768549505969584181009_2026-04-22_11-03-45.m4a"
+      },
+      {
+        "quote": "the last date is 25th of April, like day after tomorrow.",
+        "translation": "The last date is 25th of April, which is day after tomorrow.",
+        "description": "The counsellor emphasized the approaching deadline for the entrance exam application.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "GAYATRI",
+        "call_id": "17768549506009607266157_2026-04-22_12-07-15.m4a"
+      },
+      {
+        "quote": "To abhi abhi aapke paas eight days more hai apply karne ke liye.",
+        "translation": "So you have eight days more to apply.",
+        "description": "The counsellor created a sense of urgency by mentioning application deadlines.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "GAYATRI",
+        "call_id": "17769185632259711406353_2026-04-22_17-25-01.m4a"
+      },
+      {
+        "quote": "Counsellor: agar option de raha hai na koi bhi college ki aap apply kar sakte ho to main aapko yahi suggest karungi ki apply kar lena nahi to fir aapka ek year one year waste ho jayega.",
+        "translation": "Counsellor: If any college is giving you an option to apply, I would suggest you apply, otherwise, you will waste a year.",
+        "description": "Counsellor emphasized the importance of applying soon to avoid wasting a year.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "1776935924668Call7891007789(7891007789)_20260423131442.mp3"
+      },
+      {
+        "quote": "To aap inme se na shortlist karke aur ab jaise colleges ke liye aap apply karna shuru kar sakte hai.",
+        "translation": "You should start applying for colleges as admissions have already begun.",
+        "description": "The counsellor emphasized the importance of applying soon as admissions were starting.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "17769360195591776929287852Call6377823518(6377823518)_20260423105214.aiff"
+      },
+      {
+        "quote": "LPU ka to kal parso last date hai.",
+        "translation": "The last date for LPU is the day after tomorrow.",
+        "description": "The counsellor created urgency by mentioning application deadlines.",
+        "outcome": "application_started",
+        "app_started": true,
+        "counsellor": "GAYATRI",
+        "call_id": "17769389145578226918173_2026-04-23_13-27-57.m4a"
+      },
+      {
+        "quote": "Kyunki achha college hai to seat bhi jaldi full ho jati hai na.",
+        "translation": "Because it's a good college, the seats fill up quickly.",
+        "description": "Counsellor emphasized the need to apply quickly to avoid missing out on seats.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "1777012715405Call9334111619(9334111619)_20260424094159.mp3"
+      },
+      {
+        "quote": "Delay mat karo na application mein, phir aap ek college ka to aap application karo na ma'am.",
+        "translation": "Don't delay in the application, then you should apply to at least one college.",
+        "description": "Counsellor created urgency for the application process.",
+        "outcome": "info_shared_interested",
+        "app_started": true,
+        "counsellor": "GAYATRI",
+        "call_id": "1777019983844919879102397_2026-04-24_11-04-23.m4a"
+      },
+      {
+        "quote": "M Pharma ki seats na sabse, sabse jaldi full ho jaati hain colleges mein.",
+        "translation": "M Pharma seats fill up very quickly in colleges.",
+        "description": "The counsellor emphasized the importance of applying quickly due to limited seats.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "1777020344914Call7063695544(7063695544)_20260424130007.mp3"
+      },
+      {
+        "quote": "Kyunki achha college hai to seats bhi jaldi full ho jati hai na.",
+        "translation": "Because it is a good college, the seats fill up quickly.",
+        "description": "Counsellor emphasized the need to apply quickly due to limited seats.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "17770279714721777012715405Call9334111619(9334111619)_20260424094159_(1).aiff"
+      },
+      {
+        "quote": "agar abhi apply karte ho aaj ya kal pe to 30,000 aapko fee me bhi relaxation mil jayega.",
+        "translation": "If you apply today or tomorrow, you will get a relaxation of 30,000 in the fee.",
+        "description": "Counsellor created urgency by mentioning early bird scholarship and the need to apply quickly.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "1777030913357Call7679496442(7679496442)_20260424162454.mp3"
+      },
+      {
+        "quote": "To aap, aap na apna application apply kar sakte ho colleges ke liye.",
+        "translation": "So you can apply your application for the colleges.",
+        "description": "The counsellor emphasized the importance of applying early to avoid missing out on seats.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "purnima rai",
+        "call_id": "1777030913561Call9685854165(9685854165)_20260424165712.mp3"
+      },
+      {
+        "quote": "Kyunki maybe private colleges hote hain na wo first come first serve basis pe admission dete hain.",
+        "translation": "Private colleges admit on a first-come-first-serve basis.",
+        "description": "The counsellor created a sense of urgency regarding college applications due to first-come-first-serve admissions.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Shivam tripathi",
+        "call_id": "17770310793657719613637.mp3"
+      },
+      {
+        "quote": "Kyunki baad mein to aap bhi jante ho result ke time pe scholarship jo hoti hai bahut kam kar di jati hai.",
+        "translation": "Because later, you know that the scholarships are significantly reduced at the time of results.",
+        "description": "The counsellor created a sense of urgency regarding the application process to secure a scholarship.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Ritik Bhardwaj",
+        "call_id": "1777032352873audio_7991185536_1777032349.mp3"
+      },
+      {
+        "quote": "Sir it is that that I have very you know short time left because every college's applications are you know closing by last by 25th April or by end of the April.",
+        "translation": "Sir it is that that I have very you know short time left because every college's applications are you know closing by last by 25th April or by end of the April.",
+        "description": "The counsellor emphasized the importance of applying soon due to approaching deadlines.",
+        "outcome": "info_shared_interested",
+        "app_started": true,
+        "counsellor": "Ashish Naithani",
+        "call_id": "1777032876970918527387178_2026-04-23_16-08-51.amr"
+      },
+      {
+        "quote": "I guess you should start applying because it is last time because usually colleges in my time it is a shortlisting process will be going on.",
+        "translation": "You should start applying because it is the last time for the shortlisting process.",
+        "description": "The counsellor emphasized the need to start applying soon due to the shortlisting process.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Ashish Naithani",
+        "call_id": "17770328769868839254091_2026-04-23_15-44-00.amr"
+      },
+      {
+        "quote": "maximum colleges are closing their application soon.",
+        "translation": "Maximum colleges are closing their application soon.",
+        "description": "The counsellor emphasized the need to apply quickly due to closing applications.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Bharti Sharma",
+        "call_id": "1777033025825Call_recording_9338020580_260424_111711.m4a"
+      },
+      {
+        "quote": "Ye kabhi bhi close ho sakte hain form.",
+        "translation": "These forms can close at any time.",
+        "description": "Counsellor created urgency for filling out the application forms.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Gulfam khan",
+        "call_id": "1777033706756Call_recording_7009117038_260424_163305.m4a"
+      },
+      {
+        "quote": "Abhi for the timing application jo hai uske waived off hain.",
+        "translation": "Currently, the application fees are waived off.",
+        "description": "The counsellor mentioned that some campuses have waived off application fees to encourage quick applications.",
+        "outcome": "info_shared_interested",
+        "app_started": true,
+        "counsellor": "Dhruv",
+        "call_id": "17770356989888521004548_2026-04-24_17-30-17.m4a"
+      },
+      {
+        "quote": "Aapko apply karna padega jaldi se.",
+        "translation": "You need to apply as soon as possible.",
+        "description": "The counsellor emphasized the need to apply as soon as possible after JEE results.",
+        "outcome": "callback_scheduled",
+        "app_started": false,
+        "counsellor": "Medha Singh",
+        "call_id": "1777092281975audio_9810258681_1777092281.mp3"
+      },
+      {
+        "quote": "Kyunki 30th of April tak jitne acche placement wise colleges hain, unke applications close ho jayenge.",
+        "translation": "Because by the 30th of April, applications for good placement-wise colleges will close.",
+        "description": "The counsellor emphasized the importance of applying before deadlines.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Minakshi Singh",
+        "call_id": "1777093538495audio_7404886511_1777093537.mp3"
+      },
+      {
+        "quote": "Form to kaafi delay ho chuka hai, late ho gaya aapka.",
+        "translation": "The form has been delayed a lot, you are late.",
+        "description": "The counsellor emphasized the urgency of filling out forms due to approaching deadlines.",
+        "outcome": "callback_scheduled",
+        "app_started": false,
+        "counsellor": "Archna Bhatt",
+        "call_id": "1777098255371audio_8957286082_1777098250.mp3"
+      },
+      {
+        "quote": "Kyunki aap turant fir check kar lete kyunki bahut saare colleges main aapko bataungi chaar paanch aapke Delhi ke top colleges bataungi.",
+        "translation": "Because you should check quickly as I will tell you about four or five top colleges in Delhi.",
+        "description": "Counsellor emphasized the importance of acting quickly to secure admission.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Archna Bhatt",
+        "call_id": "1777100953100audio_8957286082_1777100946.mp3"
+      },
+      {
+        "quote": "Beta evening tak to possible nahi hai na kyunki meri timing jo hai wo aapki 4 baje tak ki hi timing hai.",
+        "translation": "It won't be possible by evening because my timing is only until 4 PM.",
+        "description": "The counsellor emphasizes the importance of filling the form quickly due to time constraints.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Archna Bhatt",
+        "call_id": "1777101243365audio_8957286082_1777101241.mp3"
+      },
+      {
+        "quote": "Aapko kam se kam teen se chaar colleges apply karne padenge.",
+        "translation": "You need to apply to at least three to four colleges.",
+        "description": "The counsellor emphasized the importance of applying to multiple colleges quickly.",
+        "outcome": "info_shared_interested",
+        "app_started": true,
+        "counsellor": "Medha Singh",
+        "call_id": "17771019678188851869326.wav"
+      },
+      {
+        "quote": "Aapka application jitni jaldi karenge na wo benefit aapko jaldi mil jayega.",
+        "translation": "The sooner you apply, the sooner you will benefit.",
+        "description": "The counsellor emphasized the importance of applying early to secure a seat.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Shivam Dubey",
+        "call_id": "1777101990699audio_6398914630_1777101984.mp3"
+      },
+      {
+        "quote": "But try karna ki as soon as possible aap use complete kar le.",
+        "translation": "But try to complete it as soon as possible.",
+        "description": "Counsellor emphasized the need to complete the application as soon as possible.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Ritik Bhardwaj",
+        "call_id": "1777102576044audio_8005549483_1777102574.mp3"
+      },
+      {
+        "quote": "So jitna fast aap apply karenge utne chances hain aapko colleges se calls receive hone ke, theek hai?",
+        "translation": "The faster you apply, the more chances you have to receive calls from colleges.",
+        "description": "The counsellor emphasized the need to apply quickly due to high competition.",
+        "outcome": "callback_scheduled",
+        "app_started": false,
+        "counsellor": "Medha Singh",
+        "call_id": "1777103212556audio_8827895530_1777103209.mp3"
+      },
+      {
+        "quote": "To do one thing, aap application fill kar lo.",
+        "translation": "So do one thing, fill the application.",
+        "description": "The counsellor encouraged the student to fill the application quickly due to favorable fee structures.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Anjali thakur",
+        "call_id": "1777103779142audio_7891488510_1777103777.mp3"
+      },
+      {
+        "quote": "Wo main laga dunga to wo 1000 rupees ka unka application fees aapko 500 ka padega.",
+        "translation": "I will apply the coupon code, so the application fee of 1000 rupees will be reduced to 500.",
+        "description": "Counsellor creates urgency by mentioning the limited time for the coupon code.",
+        "outcome": "info_shared_interested",
+        "app_started": false,
+        "counsellor": "Shivam tripathi",
+        "call_id": "1777103977161audio_6205371684_1777103973.mp3"
+      }
+    ],
+    "key_finding": "Urgency tactics correlate with +8.9pp higher application rate (18.2% vs 9.3%)."
+  },
+  "gender_analysis": {
+    "male": {
+      "count": 67,
+      "label": "Male Students",
+      "confidence_breakdown": {
+        "high": 67
+      },
+      "outcomes": {
+        "info_shared_interested": 58,
+        "callback_scheduled": 5,
+        "application_started": 4
+      },
+      "application_rate": 11.9,
+      "whatsapp_rate": 64.2,
+      "avg_duration": 662.2,
+      "top_tactics": {
+        "Structured Qualification": 45,
+        "Tiered College Recommendation": 45,
+        "Empathy & Reassurance": 33,
+        "WhatsApp Handoff": 23,
+        "Urgency Creation": 20,
+        "Placement Data Anchoring": 11,
+        "Multi-Option Strategy": 10,
+        "Rapport Building": 9,
+        "Reality Check": 8,
+        "Friction Removal": 8
+      },
+      "top_objections": {
+        "budget_concern": 32,
+        "quality_doubt": 18,
+        "location_concern": 15,
+        "not_interested": 12,
+        "other": 5,
+        "exam_not_ready": 5,
+        "already_decided": 3,
+        "wants_government": 2
+      },
+      "top_courses": {
+        "B.Tech CSE": 22,
+        "B.Tech": 16,
+        "MBA": 4,
+        "not_mentioned": 4,
+        "B.Tech Mechanical": 2,
+        "BBA": 2,
+        "B.Tech ECE": 2,
+        "BSc Zoology": 1
+      },
+      "decision_stages": {
+        "actively_comparing": 59,
+        "just_exploring": 6,
+        "already_applied_elsewhere": 2
+      },
+      "top_colleges": {
+        "Amity University": 18,
+        "Chandigarh University": 10,
+        "JECRC": 7,
+        "NIET": 7,
+        "GNIOT": 7,
+        "UEM": 6,
+        "Manipal University": 6,
+        "KIIT": 6,
+        "Parul University": 4,
+        "Jain University": 4
+      },
+      "sample_evidence": [
+        {
+          "name": "Himanshu",
+          "evidence": [
+            "Counsellor: aap Himanshu ke mother baat kar rahe ho?",
+            "User: Haan. Mam isne diploma kiya hai, to mujhe diploma to degree karana hai B.Tech."
+          ],
+          "call_id": "17766869508329879102397_2026-04-20_17-14-19.m4a"
+        },
+        {
+          "name": "Sumit",
+          "evidence": [
+            "User: Mam abhi hai nahi lekin main management university dekh raha hu.",
+            "User: Mam, iski kitni fees hai Poornima ki?"
+          ],
+          "call_id": "1776752041221Call7240636263(7240636263)_20260421104452.mp3"
+        },
+        {
+          "name": "Shivansh",
+          "evidence": [
+            "Counsellor: To abhi matlab location aap aise kya plan kar rahe ho college ke liye?",
+            "Counsellor: Matlab CAT diya tha aapne CAT?"
+          ],
+          "call_id": "1776774464428Call9571489868(9571489868)_20260421174221.mp3"
+        },
+        {
+          "name": "Amarpreet",
+          "evidence": [
+            "Mera 6.4 CGPA tha.",
+            "Haan, haan, CMAT diya hua hai."
+          ],
+          "call_id": "1776851937186Call9714194060(9714194060)_20260422143443.mp3"
+        },
+        {
+          "name": null,
+          "evidence": [
+            "bete ka",
+            "uska 58 percentile hai"
+          ],
+          "call_id": "17768549421929988013556_2026-04-22_14-17-56.m4a"
+        }
+      ]
+    },
+    "female": {
+      "count": 36,
+      "label": "Female Students",
+      "confidence_breakdown": {
+        "high": 35,
+        "medium": 1
+      },
+      "outcomes": {
+        "info_shared_interested": 29,
+        "callback_scheduled": 4,
+        "application_started": 2,
+        "info_shared_lukewarm": 1
+      },
+      "application_rate": 13.9,
+      "whatsapp_rate": 58.3,
+      "avg_duration": 667.0,
+      "top_tactics": {
+        "Structured Qualification": 21,
+        "Tiered College Recommendation": 20,
+        "Empathy & Reassurance": 20,
+        "Urgency Creation": 12,
+        "WhatsApp Handoff": 11,
+        "Multi-Option Strategy": 10,
+        "Friction Removal": 7,
+        "Placement Data Anchoring": 5,
+        "Reality Check": 3,
+        "Application Push": 1
+      },
+      "top_objections": {
+        "budget_concern": 16,
+        "location_concern": 9,
+        "quality_doubt": 8,
+        "not_interested": 8,
+        "other": 7,
+        "exam_not_ready": 4,
+        "already_decided": 4
+      },
+      "top_courses": {
+        "B.Tech": 8,
+        "B.Tech CSE": 6,
+        "MBA": 2,
+        "not_mentioned": 2,
+        "MBA PGDM": 1,
+        "BCA": 1,
+        "BBA": 1,
+        "BBA Aviation Management": 1
+      },
+      "decision_stages": {
+        "just_exploring": 4,
+        "actively_comparing": 26,
+        "ready_to_apply": 5,
+        "not_mentioned": 1
+      },
+      "top_colleges": {
+        "Amity University": 6,
+        "Chandigarh University": 4,
+        "NIET": 4,
+        "Sage University": 3,
+        "UPES": 3,
+        "GNIOT": 3,
+        "Thapar University": 2,
+        "Parul University": 2,
+        "CGC Mohali": 2,
+        "MIT WPU": 2
+      },
+      "sample_evidence": [
+        {
+          "name": "Dipanshi",
+          "evidence": [
+            "Dipanshi meri beti hai",
+            "usko beti ko zyada pata hai"
+          ],
+          "call_id": "1776686472468audio_9675116464_1776686468.mp3"
+        },
+        {
+          "name": "Suhani",
+          "evidence": [
+            "Counsellor: Suhani se baat ho rahi hai?",
+            "User: Ji."
+          ],
+          "call_id": "1776756538084audio_8962970686_1776756535.mp3"
+        },
+        {
+          "name": null,
+          "evidence": [
+            "User: ma'am mera 65 aaya hai.",
+            "User: ma'am mera 10th mein 60% tha ma'am."
+          ],
+          "call_id": "17768549505527000583211_2026-04-22_13-25-10.m4a"
+        },
+        {
+          "name": "Naisa",
+          "evidence": [
+            "Counsellor: Hi, may I speak to Naisa?",
+            "User: Actually I am a little bit deciding ki mujhe abroad jaana hai ki India, to main wahi dekh rahi hu."
+          ],
+          "call_id": "17768549505597718853881_2026-04-22_11-29-42.m4a"
+        },
+        {
+          "name": "Shreya Pathak",
+          "evidence": [
+            "User: Shreya Pathak 765434 na?"
+          ],
+          "call_id": "17768549505648240262639_2026-04-22_12-36-29.m4a"
+        }
+      ]
+    },
+    "unclear": {
+      "count": 4,
+      "label": "Unclear Gender",
+      "confidence_breakdown": {
+        "low": 3,
+        "medium": 1
+      },
+      "outcomes": {
+        "info_shared_interested": 4
+      },
+      "application_rate": 0.0,
+      "whatsapp_rate": 50.0,
+      "avg_duration": 354.3,
+      "top_tactics": {
+        "Tiered College Recommendation": 4,
+        "Reality Check": 2,
+        "Empathy & Reassurance": 2,
+        "Urgency Creation": 1,
+        "Structured Qualification": 1,
+        "WhatsApp Handoff": 1
+      },
+      "top_objections": {
+        "quality_doubt": 1,
+        "budget_concern": 1,
+        "location_concern": 1,
+        "not_interested": 1
+      },
+      "top_courses": {
+        "B. Pharmacy": 1,
+        "B.Tech Biotechnology": 1,
+        "Mechanical Engineering": 1,
+        "B.Tech Civil": 1
+      },
+      "decision_stages": {
+        "just_exploring": 1,
+        "actively_comparing": 3
+      },
+      "top_colleges": {
+        "SOA University": 2,
+        "Centurion University of Technology and Management": 1,
+        "Amity University Raipur": 1,
+        "GIET": 1,
+        "PEC": 1,
+        "BITS Pilani": 1,
+        "Thapar University": 1,
+        "JP Institute": 1,
+        "NIIT": 1,
+        "Amity University": 1
+      },
+      "sample_evidence": [
+        {
+          "name": null,
+          "evidence": [
+            "User: My kid has never been interested to go there.",
+            "User: First time my kid is going to outside of the Odisha."
+          ],
+          "call_id": "1777033025825Call_recording_9338020580_260424_111711.m4a"
+        }
+      ]
+    },
+    "deltas": [
+      {
+        "metric": "Application Start Rate",
+        "male": "11.9%",
+        "female": "13.9%",
+        "delta": "+2.0pp",
+        "insight": "Female students have higher application rate"
+      },
+      {
+        "metric": "Avg Call Duration",
+        "male": "662s",
+        "female": "667s",
+        "delta": "+5s",
+        "insight": "Calls with female students are longer"
+      },
+      {
+        "metric": "WhatsApp Handoff Rate",
+        "male": "64.2%",
+        "female": "58.3%",
+        "delta": "-5.9pp",
+        "insight": "More WhatsApp handoffs with male students"
+      },
+      {
+        "metric": "Tactic Usage Differences (≥10pp gap)",
+        "details": [
+          {
+            "tactic": "Multi-Option Strategy",
+            "male_pct": "14.9%",
+            "female_pct": "27.8%",
+            "skew": "More with female"
+          },
+          {
+            "tactic": "Tiered College Recommendation",
+            "male_pct": "67.2%",
+            "female_pct": "55.6%",
+            "skew": "More with male"
+          },
+          {
+            "tactic": "Rapport Building",
+            "male_pct": "13.4%",
+            "female_pct": "0.0%",
+            "skew": "More with male"
+          }
+        ]
+      },
+      {
+        "metric": "Objection Differences (≥10pp gap)",
+        "details": [
+          {
+            "objection": "other",
+            "male_pct": "7.5%",
+            "female_pct": "19.4%",
+            "skew": "More with female"
+          }
+        ]
+      }
+    ],
+    "total_analyzed": 107,
+    "gender_distribution": {
+      "male": 67,
+      "female": 36,
+      "unclear": 4
+    }
+  },
+  "gender_raw": [
+    {
+      "id": "1776686472468audio_9675116464_1776686468.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Dipanshi meri beti hai",
+          "sir bacche ne na college ke liye inquiry ki thi",
+          "aap mujhe bata dijiye zyada preference kis cheez ki hai waise option aapko dono hi rakhne chahiye"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Dipanshi meri beti hai",
+          "usko beti ko zyada pata hai"
+        ],
+        "student_name_mentioned": "Dipanshi",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "beti",
+          "sir",
+          "bacche"
+        ]
+      }
+    },
+    {
+      "id": "17766869508307759027066_2026-04-20_17-04-06.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "unclear",
+        "caller_gender_confidence": "low",
+        "caller_gender_evidence": [],
+        "student_gender": "unclear",
+        "student_gender_confidence": "low",
+        "student_gender_evidence": [],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": []
+      }
+    },
+    {
+      "id": "17766869508329879102397_2026-04-20_17-14-19.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji.",
+          "User: Mam isne diploma kiya hai, to mujhe diploma to degree karana hai B.Tech.",
+          "User: Haan chalega, chalega.",
+          "User: Accha, aur kisi me nahi hai mam?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: aap Himanshu ke mother baat kar rahe ho?",
+          "User: Haan. Mam isne diploma kiya hai, to mujhe diploma to degree karana hai B.Tech."
+        ],
+        "student_name_mentioned": "Himanshu",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "mam",
+          "mother"
+        ]
+      }
+    },
+    {
+      "id": "1776752041221Call7240636263(7240636263)_20260421104452.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Hello. Sumit se baat ho rahi hai?",
+          "User: Ji mam.",
+          "User: Mam, iski kitni fees hai Poornima ki?",
+          "User: Mam abhi hai nahi lekin main management university dekh raha hu."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mam abhi hai nahi lekin main management university dekh raha hu.",
+          "User: Mam, iski kitni fees hai Poornima ki?",
+          "User: Main Alwar se hu."
+        ],
+        "student_name_mentioned": "Sumit",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam"
+        ]
+      }
+    },
+    {
+      "id": "1776756538084audio_8962970686_1776756535.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ji.",
+          "User: Yes mam, meri actually ho gayi hai baat Sage University se.",
+          "User: Mam abhi to time hai like abhi mera B.Tech running hai.",
+          "User: 12th ka 88.",
+          "User: Yes mam.",
+          "User: Mam abhi specialization na decide nahi hui hai like kis mein karna hai.",
+          "User: Okay, okay mam.",
+          "User: Thank you mam."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Suhani se baat ho rahi hai?",
+          "User: Ji.",
+          "User: Yes mam, meri actually ho gayi hai baat Sage University se.",
+          "User: Mam abhi to time hai like abhi mera B.Tech running hai."
+        ],
+        "student_name_mentioned": "Suhani",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam",
+          "Suhani"
+        ]
+      }
+    },
+    {
+      "id": "1776774464428Call9571489868(9571489868)_20260421174221.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mam maine do teen, teen colleges dekhe the.",
+          "User: Ji mam aur ek do maine dekhe the Gurgaon mein Alterra Institute.",
+          "User: Mam main bhi Rajasthan se hi hu aur vaise abhi to Alwar rehte hai par B.Com ke baad bahar jayenge padhai karne ke liye."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: To abhi matlab location aap aise kya plan kar rahe ho college ke liye?",
+          "Counsellor: Matlab CAT diya tha aapne CAT?",
+          "Counsellor: To aap mujhe ek baar apna 12th ka score bata do 12th mein kitna percentage tha aapka?",
+          "Counsellor: Agar aap acha option dekh rahe ho na to ye aapke paas aap mein School of Business hai.",
+          "Counsellor: To ye kafi acha option rahega agar aap apply karne chahte ho to."
+        ],
+        "student_name_mentioned": "Shivansh",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam",
+          "beta",
+          "beti",
+          "ladka",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "1776851937186Call9714194060(9714194060)_20260422143443.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "unclear",
+        "caller_gender_confidence": "low",
+        "caller_gender_evidence": [],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Mera 6.4 CGPA tha.",
+          "Haan, haan, CMAT diya hua hai."
+        ],
+        "student_name_mentioned": "Amarpreet",
+        "is_caller_the_student": true,
+        "gendered_terms_found": []
+      }
+    },
+    {
+      "id": "17768549421929988013556_2026-04-22_14-17-56.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "bete ka",
+          "hum yeh B.Tech ke liye dekh rahe the",
+          "usne na drop liya tha NDA ki taiyari ki thi usne",
+          "uska matlab accha aa nahi paaya"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "bete ka",
+          "uska 58 percentile hai",
+          "usne na drop liya tha NDA ki taiyari ki thi"
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "beta",
+          "bacche",
+          "uska",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "17768549421959988013556_2026-04-22_14-24-18.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan naam hai Taranjot Singh.",
+          "User: Haan to yeh bhi kafi achcha college hai, like SRM to waise bhi iske teeno campuses achche hai, SRM University ke."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haan naam hai Taranjot Singh.",
+          "User: Uski abhi date hai."
+        ],
+        "student_name_mentioned": "Taranjot Singh",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "bacche",
+          "ma'am",
+          "beta"
+        ]
+      }
+    },
+    {
+      "id": "17768549505527000583211_2026-04-22_13-25-10.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji Bhavya?",
+          "User: Yes ma'am.",
+          "User: ma'am mera 65 aaya hai.",
+          "User: ma'am mera 10th mein 60% tha ma'am.",
+          "User: Yes ma'am, yes ma'am, chalega chalega."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: ma'am mera 65 aaya hai.",
+          "User: ma'am mera 10th mein 60% tha ma'am.",
+          "User: meri beti ke liye"
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "bachche",
+          "meri beti"
+        ]
+      }
+    },
+    {
+      "id": "17768549505597718853881_2026-04-22_11-29-42.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes, speaking.",
+          "User: Haan ji, ye same number hai."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Hi, may I speak to Naisa?",
+          "User: Actually I am a little bit deciding ki mujhe abroad jaana hai ki India, to main wahi dekh rahi hu."
+        ],
+        "student_name_mentioned": "Naisa",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "Naisa"
+        ]
+      }
+    },
+    {
+      "id": "17768549505618090141409_2026-04-22_11-48-05.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Accha koi sarkari college to milega nahi, government college?",
+          "Counsellor: Nahi sir, itne kam me to government colleges possible hi nahi hai."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: to aapke bacche ka to 3 lakh something aaya hai na?",
+          "User: Haan ji ji."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "sir",
+          "bacche"
+        ]
+      }
+    },
+    {
+      "id": "17768549505648240262639_2026-04-22_12-36-29.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji, BCA ke liye isme 12th ka exam ho gaya aapka?",
+          "User: Bacche.",
+          "User: Aapka poora naam Shreya Pathak hai?"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Shreya Pathak 765434 na?"
+        ],
+        "student_name_mentioned": "Shreya Pathak",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bacche"
+        ]
+      }
+    },
+    {
+      "id": "17768549505788569914380_2026-04-22_12-47-47.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji bataiye.",
+          "User: Achha.",
+          "User: Kya keh rahe ho aap?",
+          "User: Achha, chalo theek hai."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Yes Chaitanya, so you want to take admission in Bharati Vidyapeeth only?",
+          "User: Meri 2.35 lakh.",
+          "User: Main kaise apply karun main inka application form?",
+          "User: JEE Mains ke through mereko kuch CSE chahiye, mil jayegi?"
+        ],
+        "student_name_mentioned": "Chaitanya",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "bachhe"
+        ]
+      }
+    },
+    {
+      "id": "17768549505819031298048_2026-04-22_15-47-29.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "main BSc karna chahta hu",
+          "main Hazaribagh se bol raha hu"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "main BSc karna chahta hu",
+          "main Hazaribagh se bol raha hu"
+        ],
+        "student_name_mentioned": "Abhishek",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "bachche"
+        ]
+      }
+    },
+    {
+      "id": "17768549505889515079064_2026-04-22_15-58-04.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Aapka naam kya hai?",
+          "Counsellor: Gayatri."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Haan ji bachche abhi bolo",
+          "Counsellor: bachche Chandigarh University."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bachche"
+        ]
+      }
+    },
+    {
+      "id": "17768549505969584181009_2026-04-22_11-03-45.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ji.",
+          "User: Haan diya tha.",
+          "User: Ji main hi karunga."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Samarth ne twelfth complete kar liya hai sir?",
+          "User: Sixty.",
+          "User: Haan pata hai madam."
+        ],
+        "student_name_mentioned": "Samarth",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "madam"
+        ]
+      }
+    },
+    {
+      "id": "17768549506009607266157_2026-04-22_12-07-15.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: 'he has given'",
+          "Counsellor: 'most probably it's possible he is eligible for the college'",
+          "User: 'I will apply for the phase two'",
+          "User: 'JEE ke through bhi available'"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: '94% in student'"
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "he",
+          "sir",
+          "madam"
+        ]
+      }
+    },
+    {
+      "id": "1776857040371audio_9810756364_1776857038.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan main apne bete ke liye dekh raha tha madam.",
+          "Counsellor: Okay okay sir"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haan main apne bete ke liye dekh raha tha madam."
+        ],
+        "student_name_mentioned": "Prateek",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "bete",
+          "sir",
+          "madam"
+        ]
+      }
+    },
+    {
+      "id": "1776859692151audio_7982828706_1776859690.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes ma'am.",
+          "User: No ma'am abhi under graduate, under graduation ke liye hai.",
+          "User: Yes ma'am."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Yes ma'am.",
+          "User: No ma'am abhi under graduate, under graduation ke liye hai."
+        ],
+        "student_name_mentioned": "Kashish",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1776860409827Call7982828706(7982828706)_20260422173824.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes ma'am.",
+          "User: Okay ma'am.",
+          "User: Aap mereko UPES, CU aur Galgotias ka ek baar aap bata dijiye.",
+          "User: Okay ma'am. Thank you ma'am."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Abhi better hai Kashish?",
+          "User: Yes ma'am.",
+          "User: Aap mereko UPES, CU aur Galgotias ka ek baar aap bata dijiye."
+        ],
+        "student_name_mentioned": "Kashish",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "17769185632177974875324_2026-04-22_17-07-34.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mam mera hi hai phone.",
+          "User: Mam Bhopal wali.",
+          "User: Haan mam."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mam mera hi hai phone.",
+          "User: Haan mam, mummy ka hi hai."
+        ],
+        "student_name_mentioned": "Byogita Bhagat",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam",
+          "bachche",
+          "mummy"
+        ]
+      }
+    },
+    {
+      "id": "17769185632217974875324_2026-04-22_17-15-52.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: main to pura check kar li ma'am.",
+          "User: Haan ma'am.",
+          "User: Ma'am mere paas OTP aaya hi nahi hai."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: meri isme double tick dikha raha hai wo.",
+          "User: Nahi nahi maine aapko hi bheja hai."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "bachhe"
+        ]
+      }
+    },
+    {
+      "id": "17769185632237974875324_2026-04-22_17-21-08.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ma'am wo SAGE entrance ke application chalu hai na?",
+          "User: Haan ma'am main wo hoga nahi to main cafe me jaakar karwa lungi."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: meri beti ke liye",
+          "User: Haan ma'am main wo hoga nahi to main cafe me jaakar karwa lungi."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "bachche"
+        ]
+      }
+    },
+    {
+      "id": "17769185632259711406353_2026-04-22_17-25-01.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mam mereko diploma mein kya to Noida mein college admission chahiye.",
+          "User: Mam Rohit Kumar."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mam mereko diploma mein kya to Noida mein college admission chahiye.",
+          "User: Mam Rohit Kumar."
+        ],
+        "student_name_mentioned": "Rohit Kumar",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam"
+        ]
+      }
+    },
+    {
+      "id": "1776935924668Call7891007789(7891007789)_20260423131442.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ji ab aa rahi hai.",
+          "User: Haan uski kari thi.",
+          "User: Haan September mein complete, matlab course wagera complete ho gaya hai bas hamari actually university delay ho chuki hai.",
+          "User: Mam mera bhi kya 30 ko Jaipur aane ka hai."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: meri na abhi graduation ka na wo last semester clear nahi hua hai",
+          "User: main BBA."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam",
+          "meri",
+          "main"
+        ]
+      }
+    },
+    {
+      "id": "17769360195591776929287852Call6377823518(6377823518)_20260423105214.aiff",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan.",
+          "User: Main har jagah ke liye dekh raha hu",
+          "User: Maine JEE ka exam diya tha.",
+          "User: Mere 10th mein bane hai 70, matlab 69.8, 70%.",
+          "User: 85%."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Rishi, Purnima baat kar rahi thi Shiksha counselling team se.",
+          "User: Main har jagah ke liye dekh raha hu",
+          "User: Maine JEE ka exam diya tha."
+        ],
+        "student_name_mentioned": "Rishi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": []
+      }
+    },
+    {
+      "id": "1776938914539919879102397_2026-04-23_14-52-45.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mam ye puchna tha",
+          "User: Haan mam, main bol rahi hu",
+          "User: Mam, mujhe Pillai, Pillai bhi, Pillai ka fees zyada hai na shayad?",
+          "User: Aapka naam Gayatri hai kya?"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Sindhi quota ke liye to wahi hai",
+          "User: MHT-CET kya?",
+          "User: Kyunki ye Sindhi ka hi hai, uske jo maine HR wagera naam padhe, wo bhi Sindhi hai."
+        ],
+        "student_name_mentioned": "Gayatri",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam",
+          "beti",
+          "ladki",
+          "ladka"
+        ]
+      }
+    },
+    {
+      "id": "17769389145508075838343_2026-04-23_10-53-09.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yeah hi Sheka, this side Gayatri.",
+          "User: I am calling you from shiksha.com counselling team."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: I am not go to coaching just I write the JEE.",
+          "User: I have my plus one grade is 94%.",
+          "User: I do not like coding."
+        ],
+        "student_name_mentioned": "Gayatri",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bache",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "17769389145578226918173_2026-04-23_13-27-57.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes mam, ab aa rahi hai.",
+          "User: Ji mam, ho gaya.",
+          "User: Ji mam, CBSE board.",
+          "User: Ji mam, exam to diya tha.",
+          "User: Ji mam, robotics me gaya hai.",
+          "User: Ji mam, CUCET."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mam utna khaas nahi, 50 percentile hi tha.",
+          "User: Aur main OBC se belong karta hu to mera usme rank 3 lakh something aaya tha."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam",
+          "beta",
+          "beti",
+          "ladka",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "17769389145638319372338_2026-04-23_10-40-02.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Baljinder Singh",
+          "User: main abhi job chhod ke wapas se MBA karunga",
+          "User: main Pune pe main abhi drop lunga"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: main abhi job chhod ke wapas se MBA karunga",
+          "User: mereko growth nahi mil rahi hai",
+          "User: main MBA complete karunga"
+        ],
+        "student_name_mentioned": "Baljinder",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "ladka",
+          "ladki",
+          "sir",
+          "ma'am",
+          "bhaiya",
+          "didi"
+        ]
+      }
+    },
+    {
+      "id": "17769389145688830263403_2026-04-23_12-14-22.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan Sahil, right?",
+          "User: Haan like maine apply kiya tha uske liye"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haan Sahil, right?",
+          "User: Haan like maine apply kiya tha uske liye"
+        ],
+        "student_name_mentioned": "Sahil",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "ladka",
+          "ladki",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1776945005749audio_9351817311_1776945003.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Theek hai Sachin, main na abhi aapko same abhi WhatsApp kar rahi hoon main aapko"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: SC category hai meri waise.",
+          "User: JEE hi diya tha to maan lo usme to kam hi hai."
+        ],
+        "student_name_mentioned": "Sachin",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "SC category",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "17769451785491776945005749audio_9351817311_1776945003_(1).aiff",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Theek hai Sachin main na abhi aapko same number abhi WhatsApp kar rahi hoon main aapko theek hai."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: SC category hai meri waise.",
+          "User: 80 hai.",
+          "User: JEE to kam hi hai 42-43, 43 ke something."
+        ],
+        "student_name_mentioned": "Sachin",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "SC",
+          "sir",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777012715405Call8569918527(8569918527)_20260424114321.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Okay ma'am.",
+          "User: Haan ma'am, ab aayi.",
+          "User: Ma'am wo to delete ho gaya.",
+          "User: Receipt hogi mere paas uski payment ki."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: To abhi aapne apply nahi kiya hai na kisi bhi college ke liye Anuj?",
+          "User: Ma'am maine bas aise hi apply kiya tha World College mein Gurgaon ke andar."
+        ],
+        "student_name_mentioned": "Anuj",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777012715405Call9334111619(9334111619)_20260424094159.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ma'am, haan haan.",
+          "User: Theek hai ma'am, thank you."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Naveen se baat ho rahi hai?",
+          "User: Haan.",
+          "User: Haan haan, wo to dekhe hue hai hum log."
+        ],
+        "student_name_mentioned": "Naveen",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777019983840919711406353_2026-04-24_12-18-47.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Mam main Rohit bol raha hoon"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Mam main Rohit bol raha hoon"
+        ],
+        "student_name_mentioned": "Rohit",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam"
+        ]
+      }
+    },
+    {
+      "id": "1777019983842919711406353_2026-04-24_12-29-45.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mam Rohit Kumar.",
+          "User: Mam kya kehte hain R O H I double T A."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mam Rohit Kumar."
+        ],
+        "student_name_mentioned": "Rohit Kumar",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam"
+        ]
+      }
+    },
+    {
+      "id": "1777019983844919879102397_2026-04-24_11-04-23.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "aapne jo comparison bheja na, maine to print phaad diya.",
+          "main uski mana nahi kar rahi hoon.",
+          "Haan ma'am."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "B.Tech karna hai na.",
+          "usne kiya hi nahi hai na."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "ma'am",
+          "uski",
+          "B.Tech",
+          "beta"
+        ]
+      }
+    },
+    {
+      "id": "17770199838489009820102_2026-04-24_12-39-19.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mam time ho gaya",
+          "User: Nahi mam wo mujhe mail ID malum nahi hai",
+          "User: Aur email ID? Nahi yeh bete ka number hai jiska admission karna hai."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mera 97. Yeh bete ka number hai jiska admission karna hai.",
+          "User: Bache ka naam kya hai? Miran.",
+          "User: Haan. M I R A N. Miran Siddiqui? Nahi Haider."
+        ],
+        "student_name_mentioned": "Haider",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "mam",
+          "bete",
+          "bacha"
+        ]
+      }
+    },
+    {
+      "id": "17770199838519229064430_2026-04-24_11-58-41.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Acha theek hai ma'am aapse hum thodi der baad mein baat karte hain.",
+          "Counsellor: Okay, kis time pe baat kar sakte hai?"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Humko animation karna hai."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "humko",
+          "aap"
+        ]
+      }
+    },
+    {
+      "id": "1777020344914Call7063695544(7063695544)_20260424130007.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Boliye.",
+          "User: Haan M Pharma ke liye.",
+          "User: Kolkata ke liye zyada focus kar rahi hu.",
+          "User: Main RA ke liye dekh rahi hu."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Anushka se baat ho rahi hai meri?",
+          "User: Haan M Pharma ke liye.",
+          "User: Kolkata ke liye zyada focus kar rahi hu.",
+          "User: Main RA ke liye dekh rahi hu."
+        ],
+        "student_name_mentioned": "Anushka",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "Anushka",
+          "M Pharma",
+          "Kolkata",
+          "RA"
+        ]
+      }
+    },
+    {
+      "id": "1777020344915Call9305050317(9305050317)_20260424131142.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: 'main aapko scholarship ki list aapko iski share kar deti hu'",
+          "User: 'main aapko fees bata deti hu'",
+          "User: 'main to aapko ye suggest karungi'"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: 'Abhishek'"
+        ],
+        "student_name_mentioned": "Abhishek",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "mam",
+          "aap",
+          "main",
+          "aapko"
+        ]
+      }
+    },
+    {
+      "id": "17770279714721777012715405Call9334111619(9334111619)_20260424094159_(1).aiff",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ma'am, haan haan.",
+          "User: Haan haan wo to dekhe hai hum log.",
+          "User: Haan haan okay ma'am."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Naveen se baat ho rahi hai?",
+          "User: Haan ma'am, haan haan.",
+          "User: Hum all over India mein kahin pe bhi ja sakte hai."
+        ],
+        "student_name_mentioned": "Naveen",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "17770296149978120420220-2604241545.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan haan Akash bol raha hu.",
+          "Counsellor: Ji ji ji main Rohan Sharma baat kar raha hu shiksha.com se counselling team se."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Main dekh to B.Tech CSE mein hi raha hu.",
+          "User: Nahi JEE nahi diya maine.",
+          "User: Budget to 10 to 12."
+        ],
+        "student_name_mentioned": "Akash",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "ladka",
+          "B.Tech",
+          "CSE"
+        ]
+      }
+    },
+    {
+      "id": "1777030029977audio_9729982425_1777030027.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "mere bete ke liye dekh raha hoon main",
+          "father baat kar rahe hain aap"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "bete ke liye",
+          "usne 94 percentile bane hain"
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "bete",
+          "father",
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "1777030913357Call7679496442(7679496442)_20260424162454.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan haan boliye.",
+          "User: Haan application available hai pata hai mereko, karenge kuch hi dino me karenge.",
+          "User: Nahi nahi apply nahi kiya.",
+          "User: 10th me to kam hai average hai 51% hai mera."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Nahi hamara SC hai wo baat nahi hoga but admission ki hum 5000 me application karenge.",
+          "User: Problem matlab admission hoga ki nahi?",
+          "User: agar admission nahi hua to?"
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ladka",
+          "mera"
+        ]
+      }
+    },
+    {
+      "id": "1777030913561Call9685854165(9685854165)_20260424165712.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan main MP ka rehne wala hu."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Abhi 12th pass out hu main.",
+          "User: Haan main MP ka rehne wala hu."
+        ],
+        "student_name_mentioned": "Dilkhush",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "hu",
+          "wala"
+        ]
+      }
+    },
+    {
+      "id": "17770310793657719613637.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes sir.",
+          "Counsellor: Hi Kunal.",
+          "User: Haan ji sir.",
+          "User: Yes sir."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: To like abhi maine dekha ki 45 percentile hai aapka JEE mein.",
+          "User: Haan ji.",
+          "User: Ye first wale ka hai haan ji sir.",
+          "User: Sir Jalalabad Punjab.",
+          "User: Nahi sir wo mera batchmate hai from class nursery UKG se keh sakte ho."
+        ],
+        "student_name_mentioned": "Kunal",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "beta",
+          "ladka",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "1777031829506audio_9266329180_1777031825.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Good evening mam.",
+          "User: Yes mam.",
+          "User: Mam actually NIMS university jo main aapse pehle keh raha tha na.",
+          "User: Mam like mere paas CS nahi thi matlab computer science mere paas 11th 12th mein nahi thi."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Haan ji. User: Yes mam.",
+          "User: Mam abhi like final ho hi chuka hai ab I do not think ki abhi kuch change bhi ho sakta hai.",
+          "User: Mera bas ek thoda doubt tha like."
+        ],
+        "student_name_mentioned": "Daksh",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam"
+        ]
+      }
+    },
+    {
+      "id": "1777032114773audio_9235851263_1777032108.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Mr. Sanjay Singh ji se baat ho rahi hai sir?",
+          "aap mujhe bata dete hain sir",
+          "aap inke father baat kar rahe hain kya sir?"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "medium",
+        "student_gender_evidence": [
+          "Nahi hum Bangalore side jaana chah rahe hain kyunki wo abhi Dehradun mein padhai kar rahi to Bangalore industry bhi achhi hai."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "sir",
+          "father",
+          "padhai kar rahi"
+        ]
+      }
+    },
+    {
+      "id": "1777032352873audio_7991185536_1777032349.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Shama Praveen",
+          "Counsellor: Take care Shama"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Fashion designing",
+          "User: Haan diploma",
+          "User: 12th complete hai aapka?"
+        ],
+        "student_name_mentioned": "Shama",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "Shama",
+          "Haan",
+          "Ji"
+        ]
+      }
+    },
+    {
+      "id": "1777032645813audio_8800327876_1777032638.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Main apni daughter ke liye dhoondh rahi thi."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "meri beti ke liye"
+        ],
+        "student_name_mentioned": "Dimple",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "daughter",
+          "beti"
+        ]
+      }
+    },
+    {
+      "id": "1777032652865audio_7976661420_1777032650.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ji ma'am boliye.",
+          "User: Ji ma'am, I am all aware about it.",
+          "User: Ji ma'am yahi hai number bas."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Yeah hi, am I speaking with Ishaan Gupta?",
+          "User: Yeah ma'am, mera NMIMS ka dekh raha tha main.",
+          "User: No ma'am, CUET mein maine apply hi nahi kiya."
+        ],
+        "student_name_mentioned": "Ishaan Gupta",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "mera",
+          "dekh raha tha",
+          "Ji"
+        ]
+      }
+    },
+    {
+      "id": "17770328745789636900770_2026-04-23_15-32-40.amr",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji, haan ji, haan ji. Kaise ho? Ji badhiya.",
+          "User: Chalo Thapar ka le sakte hain sir.",
+          "User: Achha doosra meri na bhai ki bachchi hai, bhatiji."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Ab decision yeh le liya ki SRM ka vichaar kar rahe hain.",
+          "User: Lekin SRM lagbhag abhi bachche ka vichaar ho gaya ki SRM apne kar dete hain.",
+          "User: 88 hi raha."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "bachche",
+          "bhatiji",
+          "beta"
+        ]
+      }
+    },
+    {
+      "id": "17770328745809717904877_2026-04-24_14-48-33.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Thank you bhaiya."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haanji. Usme 78.5 percentile thi meri."
+        ],
+        "student_name_mentioned": "Manan",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bhaiya",
+          "meri"
+        ]
+      }
+    },
+    {
+      "id": "1777032876970918527387178_2026-04-23_16-08-51.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Sir, tell me Ayushi.",
+          "User: Okay so just do one thing na, first you can apply for the college then you can talk ki my practice is going on so how is the possibilities will happen to attend both in same time, right?"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Sir, tell me Ayushi.",
+          "User: Okay so just do one thing na, first you can apply for the college then you can talk ki my practice is going on so how is the possibilities will happen to attend both in same time, right?"
+        ],
+        "student_name_mentioned": "Ayushi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "Ayushi"
+        ]
+      }
+    },
+    {
+      "id": "1777032876972919214088785_2026-04-23_17-21-55.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan Kashvi.",
+          "User: Le baat kar.",
+          "User: Udhar leke bachche se."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haan Kashvi.",
+          "User: Haan. Ab Amity jaise Jaipur campus aapka already applied hai, right?"
+        ],
+        "student_name_mentioned": "Kashvi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bachche",
+          "Kashvi"
+        ]
+      }
+    },
+    {
+      "id": "17770328769736367798248_2026-04-24_15-15-41.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "main dekh rahi hoon",
+          "main rahoon Rajasthan se"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Yashashvi",
+          "meri beti ke liye",
+          "main dekh rahi hoon"
+        ],
+        "student_name_mentioned": "Yashashvi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "beti",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "17770328769746386317329_2026-04-24_10-24-02.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Divyanshi hai",
+          "main unka friend baat kar raha hoon",
+          "mujhe bhi suggestion kiya",
+          "mujhe interest biotechnology mein hi hai"
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Divyanshi hai",
+          "meri beti ke liye",
+          "mujhe bhi suggestion kiya, matlab suggest kiya tha Kothrud walon ne ki micro biotechnology kar lijiye"
+        ],
+        "student_name_mentioned": "Divyanshi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "Divyanshi",
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "17770328769776388216241_2026-04-24_10-53-23.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan good morning. Raj Tiwari baat kar rahe hai.",
+          "Counsellor: Hmm hmm good morning sir.",
+          "User: Ji Raj main Ashish baat kar raha hoon shiksha.com se."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: To aap ek to iske liye dekh rahe the RV Institute of Technology and Management.",
+          "User: Aapne JEE ka exam diya tha?",
+          "User: Theek hai matlab option agar achha mil jaata hai to fir aap iske liye bhi ready hai hai na?"
+        ],
+        "student_name_mentioned": "Raj Tiwari",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "17770328769817400630368_2026-04-24_12-02-59.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Counsellor: Yeah hi Aditya, good afternoon, kaise ho aap?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: 65 hai na, haan theek hai.",
+          "Counsellor: To branch still aapka CSE ke liye hi fight karna hai aapko?"
+        ],
+        "student_name_mentioned": "Aditya",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta"
+        ]
+      }
+    },
+    {
+      "id": "17770328769837851879200_2026-04-24_15-46-05.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes sir.",
+          "User: Haan ji.",
+          "User: Yes sir abhi tak to nahi start kiya maine kuch bhi."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Naitik this is Ashish from shiksha.com.",
+          "User: Haan first attempt diya tha maine.",
+          "User: Main to kya hai mere ko ye dekhna hai ki budget mein bhi rehna chahiye."
+        ],
+        "student_name_mentioned": "Naitik",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "beta"
+        ]
+      }
+    },
+    {
+      "id": "17770328769868839254091_2026-04-23_15-44-00.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes, Vidhi",
+          "User: For me, for me."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Yes, Vidhi",
+          "User: For me."
+        ],
+        "student_name_mentioned": "Vidhi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": []
+      }
+    },
+    {
+      "id": "17770328769919594980878_2026-04-24_14-40-23.amr",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji sir.",
+          "User: Jee sir."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: 80 to 85.",
+          "User: Computer science, IT."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "17770329990666284216617_2026-04-24_12-30-41m4a.mp4",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Counsellor: Hi, good afternoon sir.",
+          "User: Haan ji.",
+          "User: Nahi, mera apna personal rahega."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haan ji haan, haan ji.",
+          "Counsellor: Jab bhi aap proceed karenge, yeh bachchi ki mail ID hai na Simran Das 1012@gmail.com?"
+        ],
+        "student_name_mentioned": "Simran",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "sir",
+          "bachchi"
+        ]
+      }
+    },
+    {
+      "id": "17770329991099418069753_2026-04-24_14-28-55m4a.mp4",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Sanjay bol raha hoon.",
+          "Counsellor: Theek hai sir."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Sanjay bol raha hoon.",
+          "User: Nahi CUCET nahi ma'am."
+        ],
+        "student_name_mentioned": "Sanjay",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777033025825Call_recording_9338020580_260424_111711.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes ma'am, yes ma'am.",
+          "User: Sorry, sorry my younger brother has been done that registration.",
+          "User: My kid has never been interested to go there.",
+          "User: First time my kid is going to outside of the Odisha."
+        ],
+        "student_gender": "unclear",
+        "student_gender_confidence": "medium",
+        "student_gender_evidence": [
+          "User: My kid has never been interested to go there.",
+          "User: First time my kid is going to outside of the Odisha."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "sir",
+          "ma'am",
+          "kid"
+        ]
+      }
+    },
+    {
+      "id": "1777033315463record-7097700009.wav",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Badhiya sir.",
+          "User: Haan ji.",
+          "User: Hmm hmm.",
+          "User: Theek hai."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Yes good evening Krishan, kaise ho aap?",
+          "User: Haan ji.",
+          "User: Hmm hmm."
+        ],
+        "student_name_mentioned": "Krishan",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "1777033315471record-9216171423(2).wav",
+      "caller_type": "unclear",
+      "gender": {
+        "caller_gender": "unclear",
+        "caller_gender_confidence": "low",
+        "caller_gender_evidence": [],
+        "student_gender": "unclear",
+        "student_gender_confidence": "low",
+        "student_gender_evidence": [],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": []
+      }
+    },
+    {
+      "id": "17770336216998968686936-2604241749.amr",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: 'Haan haan, woh main apne chote bhai ke liye dekh raha tha information uske regarding.'"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: 'Rohan se baat ho rahi hai?'",
+          "User: 'Haan haan, woh main apne chote bhai ke liye dekh raha tha information uske regarding.'"
+        ],
+        "student_name_mentioned": "Rohan",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "bhai",
+          "beta"
+        ]
+      }
+    },
+    {
+      "id": "1777033706756Call_recording_7009117038_260424_163305.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji sir.",
+          "Counsellor: Right? Bas unke paas ye authority rehti hai baaki hamare paas jo hai hamare paas all over the India's college authority hai ki aap kisi bhi college ka pooch sakte hain fees se related aur saara kuch.",
+          "User: Theek hai? To ek benefit ye hai main aapke liye kar sakta hu."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Vivek kuch aapne decide kiya bete kaunsa college mein aapko apply karna hai, kuch mein bete padhai karni hai aapko HM ke liye?",
+          "User: Dekho main batata hu ye phone phone aapko bahut aayenge main aapko basically saari cheezein generally hota kya hai main bata deta hu."
+        ],
+        "student_name_mentioned": "Vivek",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bete",
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "1777033951860audio_7078945202_1777033947.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yash Tarkar hai mera naam.",
+          "Counsellor: Aapka naam kya hai sir?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Main GLA soch raha hai civil engineering se.",
+          "User: Mere jo bade chote tau hain unka wo civil engineer hain."
+        ],
+        "student_name_mentioned": "Yash",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "bade chote tau",
+          "ladka",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "17770356989868109216618_2026-04-24_10-56-30.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ji ji.",
+          "User: Haan kar main bhej de raha hoon aapko."
+        ],
+        "student_gender": "unclear",
+        "student_gender_confidence": "low",
+        "student_gender_evidence": [],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": []
+      }
+    },
+    {
+      "id": "17770356989888521004548_2026-04-24_17-30-17.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan boliye.",
+          "User: Haan.",
+          "User: Theek hai main aapko share kar deta hoon."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Haan ji, kya aapko jaankari chahiye thi usse related?",
+          "User: Mera? Probably to seventy five percent above lag raha hai mere hisaab se."
+        ],
+        "student_name_mentioned": "Piyush",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "Haan",
+          "Mera"
+        ]
+      }
+    },
+    {
+      "id": "17770356989949296486783_2026-04-24_17-03-10.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes sir.",
+          "User: Sir waise to budget ka nahi sochiye",
+          "User: Sir mujhe bas better college chahiye"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Okay beta, thank you.",
+          "User: Mera 5,92,231 hai.",
+          "User: Nahi nahi OBC mein 2,02,351."
+        ],
+        "student_name_mentioned": "Krish",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "sir",
+          "OBC",
+          "ladka",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "17770356990469304957800_2026-04-24_15-06-16.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan, bataiye sir.",
+          "Counsellor: Siddharth main Dhruv baat kar raha hoon shiksha.com se.",
+          "User: Haan sir."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: mera 1,49,000 rank pe jo sabse best college humko mil jaye bataiye.",
+          "Counsellor: To ab aap mujhe batayein ki aap kaun se college mein apply karna chahte hain taaki main uss college mein aapko apply kara sakun Siddharth."
+        ],
+        "student_name_mentioned": "Siddharth",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "mera",
+          "humko"
+        ]
+      }
+    },
+    {
+      "id": "17770356991729896098246_2026-04-24_17-47-58.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "I am the mother of Kriti Gupta.",
+          "For my son Vihan Gupta.",
+          "meri beti ke liye"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "For my son Vihan Gupta.",
+          "aapke bete ka naam hai"
+        ],
+        "student_name_mentioned": "Vihan Gupta",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "mother",
+          "son",
+          "daughter",
+          "beti",
+          "beta"
+        ]
+      }
+    },
+    {
+      "id": "17770356991839924400024_2026-04-24_13-13-09.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes, yes sir you are talking with Hiya Panchal.",
+          "User: Haan ji, she told me yes yes. Usne bata ke hi diya hai aapka number.",
+          "User: To abhi main soch rahi hu ke BSc in IT ya to phir CS ya to phir BCA options rakhti hu.",
+          "User: Haan haan. True but haan wo abhi to ho gaya matlab."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Father mera mere businessman hain. Unka real estate ka business hai aur mamma meri housewife hai.",
+          "User: So mera matlab zyada tar mamma dekhti hai.",
+          "User: To abhi main soch rahi hu ke BSc in IT ya to phir CS ya to phir BCA options rakhti hu.",
+          "User: Haan matlab mera abhi se decided to hai ke mujhe masters to karna hi hai aage jaake."
+        ],
+        "student_name_mentioned": "Hiya",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "mamma",
+          "beta",
+          "beti",
+          "ladki",
+          "ladka"
+        ]
+      }
+    },
+    {
+      "id": "1777091212751audio_7009211680_1777091212.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji.",
+          "User: Yes ma'am.",
+          "User: Ma'am abhi 12th complete kar diya, uska result aana baaki hai.",
+          "User: Ma'am OBC se.",
+          "User: Ma'am CSE ke liye dekh rahi hoon main.",
+          "User: Ma'am bhaiya ne bas bola tha ki aap bas suggestion de dijiye, main bhaiya ke saath kar lungi baad mein aap."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Aap colleges vagera search out kar rahe ho B.Tech ke liye?",
+          "User: Ma'am abhi 12th complete kar diya, uska result aana baaki hai.",
+          "User: Ma'am CSE ke liye dekh rahi hoon main.",
+          "User: Ma'am bhaiya ne bas bola tha ki aap bas suggestion de dijiye, main bhaiya ke saath kar lungi baad mein aap."
+        ],
+        "student_name_mentioned": "Santoshi Kumari",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "beta",
+          "bhaiya",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "1777092281975audio_9810258681_1777092281.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: ma'am I am just asking for B.Tech for my kid.",
+          "User: he has given the JEE Mains.",
+          "User: Ma'am less than 20. Not good.",
+          "Counsellor: Okay sir."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: he has given the JEE Mains.",
+          "User: Ma'am less than 20. Not good."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "ma'am",
+          "sir",
+          "he"
+        ]
+      }
+    },
+    {
+      "id": "1777093538495audio_7404886511_1777093537.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Main student.",
+          "Counsellor: Aapka domicile state kya hai beta?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mera 60 ke aas paas.",
+          "Counsellor: Aapka domicile state kya hai beta?",
+          "Counsellor: Theek hai, Arman mujhe ye bataye ki aapka 10th aur 12th mein kitna percentage hai?"
+        ],
+        "student_name_mentioned": "Arman",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "student"
+        ]
+      }
+    },
+    {
+      "id": "1777093560714audio_9868200321_1777093555.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji.",
+          "User: Ma'am aap mereko brochure bhej sakte ho isi number pe?",
+          "User: Haan ji ma'am.",
+          "User: Ma'am wahi 1 lakh ke aas paas ka, isse zyada nahi hai per year."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Ananya baat kar rahe hain aap, Ananya Agrawal?",
+          "User: Haan ji. B.Ed and Political Science.",
+          "User: Haan ji ma'am."
+        ],
+        "student_name_mentioned": "Ananya",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777093671671audio_9992660976_1777093666.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Good morning ma'am.",
+          "Haan ji. Aur unhone interview lena tha wo bhi le liya.",
+          "Ye to mera hi hai sir, mere husband ka hai.",
+          "Nahi sir maine na actually mere paas na wahan kisi staff ka number hai.",
+          "Actually sir mere paas do number the na maine fir Nehal ko de diya.",
+          "Mujhe bata sakte hain ki Chitkara better hai ya."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Nehal ke guardian baat kar rahe hain?",
+          "Nehal dekho tere paas koi code aaya hai?",
+          "Mera interview hua hai sir Thursday ko.",
+          "Sir ma'am ne kaha tha ki aap ek baar CSE select karke daal do baad me aapka course AI ML ho jayega."
+        ],
+        "student_name_mentioned": "Nehal",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "ma'am",
+          "beta",
+          "beti",
+          "ladka",
+          "ladki",
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "17770936892499650706135(9650706135)_20260424160918.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan.",
+          "User: Kya keh rahe ho aap?",
+          "User: Haan haan haan."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Aap mujhe bata dete na, main fir us budget me dekh leti hu koi colleges aapke liye.",
+          "User: Haan main check kiya tha.",
+          "User: Haan main dekhta hu."
+        ],
+        "student_name_mentioned": "Tanmay",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "aap",
+          "aapke",
+          "main",
+          "haan",
+          "kya",
+          "beta",
+          "beti",
+          "ladka",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "1777095106671audio_6386879750_1777095098.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Avinash baat kar rahe ho?",
+          "User: main shiksha.com se baat kar raha hoon.",
+          "User: main kisi college se baat nahi kar raha hoon."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Avinash ki B.Tech mein kaunse usme dekh rahe ho branch mein?",
+          "User: aapne JEE ka exam diya hai?",
+          "User: aap apne liye dekh rahe ho."
+        ],
+        "student_name_mentioned": "Avinash",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "Avinash",
+          "aap",
+          "main",
+          "kya",
+          "dekh rahe ho",
+          "B.Tech"
+        ]
+      }
+    },
+    {
+      "id": "1777096399556audio_9412345944_1777096395.mp3",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "bete ka hai wo mere"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "bete ka hai wo mere",
+          "bacche ka 10th aur 12th"
+        ],
+        "student_name_mentioned": "Praful",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "bete",
+          "bacche"
+        ]
+      }
+    },
+    {
+      "id": "1777097372527audio_8930429008_1777097368.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mera naam Vikash."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Mera naam Vikash.",
+          "Counsellor: Vikash ek baat batao..."
+        ],
+        "student_name_mentioned": "Vikash",
+        "is_caller_the_student": true,
+        "gendered_terms_found": []
+      }
+    },
+    {
+      "id": "1777097827230audio_6202542124_1777097824.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "Nikhil",
+          "User refers to the counsellor as 'mam'"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User's name is Nikhil",
+          "User refers to the counsellor as 'mam'"
+        ],
+        "student_name_mentioned": "Nikhil",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam"
+        ]
+      }
+    },
+    {
+      "id": "1777098255371audio_8957286082_1777098250.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Mam Deeksha.",
+          "User: Mam waise to Prayagraj matlab jo mil jaye achhe college.",
+          "User: Mam fees kitni hai?",
+          "User: Mera budget utna achha nahi hai to mam aap bata dijiye us hisab se."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Om ko nahi karna actually choti wali behen hai na use karna hai.",
+          "User: Mam Deeksha.",
+          "User: Mam main keh rahi hu ki CSE se hi college milenge na fir jo aap bata rahi hain?"
+        ],
+        "student_name_mentioned": "Deeksha",
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "mam",
+          "beta",
+          "behen"
+        ]
+      }
+    },
+    {
+      "id": "1777099497778Call_recording_7355104995_260425_111658.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes ma'am, hello.",
+          "User: Haan, to dekho, woh kya karenge, aapke father ke financial jo documents wagera hote hain na, woh process hote hain, theek hai?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Hi, good morning Mohit. Kaise ho?",
+          "User: Haan. To bas phir woh wala rehne do."
+        ],
+        "student_name_mentioned": "Mohit",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "father"
+        ]
+      }
+    },
+    {
+      "id": "1777099545013Call_recording_919548411762_260424_130000.m4a",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Main theek hoon. Aap batao.",
+          "User: Okay, thank you ma'am."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Hi, good afternoon Tanishka. Kaise hain bacche?",
+          "User: Mujhe yeh puchna tha, management quota ke through.",
+          "User: Nahi actually main, maine JEE ka result bahut bekar aaya hai."
+        ],
+        "student_name_mentioned": "Tanishka",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bacche",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777099546593Call_recording_8228066079_260424_123750.m4a",
+      "caller_type": "parent",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes mam bataiye.",
+          "User: Kisi aur ke liye.",
+          "User: Sister ke liye."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Sister ke liye.",
+          "Counsellor: To sister ki 12th complete ho gayi hai ya wo 12th mein hain abhi?"
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": false,
+        "gendered_terms_found": [
+          "sister",
+          "mam",
+          "beta",
+          "beti"
+        ]
+      }
+    },
+    {
+      "id": "1777099652863audio_7891488510_1777099645.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Vivek naam hai mera.",
+          "Counsellor: Your name is Vivek Kumar, right?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Ji ma'am, B.Tech CSE AI me.",
+          "User: 12th ka aa gaya certificate aapka?"
+        ],
+        "student_name_mentioned": "Vivek Kumar",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777100953100audio_8957286082_1777100946.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Achha ma'am.",
+          "User: Yes ma'am.",
+          "User: Ek second ma'am fir ek baar dekhti hu.",
+          "User: Ma'am mujhe to nahi pata meri didi kya pata kar di ho.",
+          "User: Ma'am kya matlab aap send kar dijiye mujhe main shaam ko didi aa jaati hai to main unse Wi-Fi connect karwa ke matlab hotspot on karwa ke main kar leti hu."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Haan ji Diksha, Diksha baat kar rahe hain aap",
+          "User: Yes ma'am.",
+          "User: Ek second dekhti hu. Koi hai bhi nahi isliye main aise bol rahi thi."
+        ],
+        "student_name_mentioned": "Diksha",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "beta",
+          "didi"
+        ]
+      }
+    },
+    {
+      "id": "1777101243365audio_8957286082_1777101241.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan mam, yes mam.",
+          "User: Main keh rahi hu mam wo didi ne bola...",
+          "User: Actually mam main kahin aur aayi hu na..."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Haan ji bataiye beta, baat ki aapne didi se?",
+          "User: Wo mam meri matlab.",
+          "Counsellor: Beta documents me aapka jo share karna padega..."
+        ],
+        "student_name_mentioned": "Sakshi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "didi",
+          "mam"
+        ]
+      }
+    },
+    {
+      "id": "17771019678137480901471.wav",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan dekhe hum.",
+          "User: Abhi dekhiye, yeh aapko to bataye hain ki bahut saare exams abhi aa rahe hain."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: To abhi aapne kya decide kiya, kaun kaun se colleges ke apply karne hain?",
+          "Counsellor: To apply karke rakho bachha."
+        ],
+        "student_name_mentioned": "Hardik",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "bachha"
+        ]
+      }
+    },
+    {
+      "id": "17771019678188851869326.wav",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "female",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji.",
+          "User: Mujhe na kya bolte hain BJMC karna hai.",
+          "User: Haan ji.",
+          "User: Mummy ka number likhiye."
+        ],
+        "student_gender": "female",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Rashi batao kya doubts hain aapke?",
+          "User: Mujhe na kya bolte hain BJMC karna hai.",
+          "User: Haan ji.",
+          "User: Mera Doon University bhi tha but usme language ke liye hai."
+        ],
+        "student_name_mentioned": "Rashi",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "beti",
+          "ladki"
+        ]
+      }
+    },
+    {
+      "id": "17771019678389017474141.wav",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan ji boliye.",
+          "User: Ma'am maine CUCET diya tha, Central University ka jo exam hai.",
+          "User: To main wahi join kar raha hoon ab."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Kya meri baat Aryan Verma se ho rahi hai?",
+          "User: Aryan main Meera baat kar rahi hoon shiksha.com se.",
+          "User: To main wahi join kar raha hoon ab."
+        ],
+        "student_name_mentioned": "Aryan",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "ma'am",
+          "beta",
+          "ladka"
+        ]
+      }
+    },
+    {
+      "id": "1777101990699audio_6398914630_1777101984.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ji sir mera naam Harshit Dixit hai.",
+          "Counsellor: Theek hai Harshit."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Ji sir main JEE Mains ke liye kar raha tha.",
+          "User: Sir mera PCM ke andar tha sir 64 aur sir overall tha sir 78."
+        ],
+        "student_name_mentioned": "Harshit",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir"
+        ]
+      }
+    },
+    {
+      "id": "1777102141991audio_8005549483_1777102139.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan. Aapki voice clear nahi aa rahi.",
+          "Counsellor: Haan Mohit baat kar rahe hain?",
+          "Counsellor: Ek minute dijiye main ek baar aapki profile open kar leta hu."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Haan Mohit baat kar rahe hain?",
+          "User: Mereko BBA karna chahiye ya nahi karna chahiye."
+        ],
+        "student_name_mentioned": "Mohit",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "ladka"
+        ]
+      }
+    },
+    {
+      "id": "1777102576044audio_8005549483_1777102574.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Rathore Mohit"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Rathore Mohit"
+        ],
+        "student_name_mentioned": "Mohit",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "beti",
+          "ladka",
+          "ladki",
+          "sir",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777102802375audio_9929605762_1777102798.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Yes sir.",
+          "Counsellor: Hello Saksham se baat ho rahi hai?",
+          "User: Haan ji haan ji haan ji.",
+          "User: Haan mere friends hain udhar."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Aap colleges ke liye as such plan kar rahe the Saksham?",
+          "User: Haan. Precisely kis location ke liye search kar rahe the?",
+          "User: Nahi achhi hai sir par wo thoda matlab aisa hai ki ab maine bahut saare dekhe.",
+          "User: Papa mana kar rahe hain."
+        ],
+        "student_name_mentioned": "Saksham",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "sir",
+          "papa",
+          "bhaiya"
+        ]
+      }
+    },
+    {
+      "id": "1777102894341audio_6205371684_1777102888.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Hello, ji meri baat ho sakti hai Shivam Srivastava?",
+          "User: Haan haan haan, woh meri ek question tha woh thoda bahut jaanna tha mujhe.",
+          "User: Toh jaise ki meri rank utni achhi nahi aayi hai JEE mein, toh main AKTU bharna chahta hu counselling ke liye.",
+          "User: Haan woh toh pata hai, matlab ek hi branch batau ki main aapko ki?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Toh jaise ki meri rank utni achhi nahi aayi hai JEE mein, toh main AKTU bharna chahta hu counselling ke liye.",
+          "User: Haan woh toh pata hai, matlab ek hi branch batau ki main aapko ki?",
+          "User: Haan woh toh hai hi mere paas, admit card chahiye, ID card chahiye, woh sab toh hai hi mere paas."
+        ],
+        "student_name_mentioned": "Shivam",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "ladka",
+          "papa",
+          "mummy",
+          "sir",
+          "ma'am",
+          "bhaiya",
+          "didi"
+        ]
+      }
+    },
+    {
+      "id": "1777103212556audio_8827895530_1777103209.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan Ayush, kya keh rahe the",
+          "User: main Chhattisgarh se belong karta hu",
+          "User: 12th board mein 85-90% aa gaya to uske basis pe mil sakta hai kya?"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haan Ayush, kya keh rahe the",
+          "User: main Chhattisgarh se belong karta hu",
+          "User: 12th board mein 85-90% aa gaya to uske basis pe mil sakta hai kya?"
+        ],
+        "student_name_mentioned": "Ayush",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "ma'am"
+        ]
+      }
+    },
+    {
+      "id": "1777103779142audio_7891488510_1777103777.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Ji mam.",
+          "Counsellor: Haan Vivek, maine aapki applications fill kar di hai"
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "Counsellor: Haan Vivek, maine aapki applications fill kar di hai"
+        ],
+        "student_name_mentioned": "Vivek",
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "mam",
+          "Vivek"
+        ]
+      }
+    },
+    {
+      "id": "1777103977161audio_6205371684_1777103973.mp3",
+      "caller_type": "student",
+      "gender": {
+        "caller_gender": "male",
+        "caller_gender_confidence": "high",
+        "caller_gender_evidence": [
+          "User: Haan main hi bada hoon, main hi bada hoon."
+        ],
+        "student_gender": "male",
+        "student_gender_confidence": "high",
+        "student_gender_evidence": [
+          "User: Haan main hi bada hoon, main hi bada hoon."
+        ],
+        "student_name_mentioned": null,
+        "is_caller_the_student": true,
+        "gendered_terms_found": [
+          "beta",
+          "bada"
+        ]
+      }
+    }
+  ]
+}

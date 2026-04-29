@@ -10,8 +10,8 @@ import re
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-TRANSCRIPT_DIR = ROOT_DIR / "transcript"
-CSV_PATH = ROOT_DIR / "counsellor-calls-to-be-transcribed-100.csv"
+TRANSCRIPT_DIR = ROOT_DIR / "transcripts"
+CSV_PATH = ROOT_DIR / "counsellor-calls-all.csv"
 OUTPUT_DIR = ROOT_DIR / "data"
 OUTPUT_PATH = OUTPUT_DIR / "parsed_transcripts.json"
 
