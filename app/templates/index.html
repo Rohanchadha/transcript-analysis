@@ -111,7 +111,12 @@
     <p class="text-sm text-slate-500 mb-4">What students/parents ask most frequently — classified into 10 categories with real examples from calls</p>
     <div style="height:350px"><canvas id="chart-buckets"></canvas></div>
   </div>
-  <h3 class="text-lg font-semibold text-slate-800 mb-3">Detailed Examples by Bucket</h3>
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-lg font-semibold text-slate-800">Detailed Examples by Bucket</h3>
+    <select id="query-bucket-filter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+      <option value="all">All Query Types</option>
+    </select>
+  </div>
   <div id="bucket-cards"></div>
 </section>
 
@@ -124,7 +129,12 @@
     <p class="text-sm text-slate-500 mb-4">Smart moves human counsellors use to steer conversations, handle hesitation, and drive applications</p>
     <div style="height:400px"><canvas id="chart-tactics"></canvas></div>
   </div>
-  <h3 class="text-lg font-semibold text-slate-800 mb-3">Tactic Details with Bot Tips</h3>
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-lg font-semibold text-slate-800">Tactic Details with Bot Tips</h3>
+    <select id="tactic-filter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+      <option value="all">All Tactics</option>
+    </select>
+  </div>
   <div id="tactic-cards"></div>
 </section>
 
@@ -140,7 +150,12 @@
     </div>
     <div class="card" id="objection-resolution"></div>
   </div>
-  <h3 class="text-lg font-semibold text-slate-800 mb-3">Objection Details with Bot Scripts</h3>
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-lg font-semibold text-slate-800">Objection Details with Bot Scripts</h3>
+    <select id="objection-filter" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+      <option value="all">All Objection Types</option>
+    </select>
+  </div>
   <div id="objection-cards"></div>
 </section>
 
@@ -210,23 +225,95 @@
         <h2 class="text-lg font-bold text-slate-800">Transcript Explorer</h2>
         <p class="text-sm text-slate-500"><span id="explorer-count">-</span> — click any row to view full transcript &amp; analysis</p>
       </div>
-      <input id="explorer-search" type="text" placeholder="Search by counsellor, course, team, stage…"
+      <input id="explorer-search" type="text" placeholder="Quick search across all fields…"
              class="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 w-full md:w-64">
-      <select id="explorer-gender" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-        <option value="all">All Genders</option>
-        <option value="male">♂️ Male</option>
-        <option value="female">♀️ Female</option>
-        <option value="unclear">Unclear</option>
-      </select>
     </div>
+
+    <!-- Filter Panel -->
+    <div id="explorer-filters" class="bg-slate-50 rounded-xl p-4 mb-4 border border-slate-200">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-slate-700">🔎 Filters</h3>
+        <button id="explorer-clear-filters" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Clear all</button>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+        <!-- Outcome -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Outcome</label>
+          <div id="filter-outcome" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="outcome">All Outcomes ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+        <!-- Stage -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Stage</label>
+          <div id="filter-stage" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="stage">All Stages ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+        <!-- Counsellor -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Counsellor</label>
+          <div id="filter-counsellor" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="counsellor">All Counsellors ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+        <!-- Team -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Team</label>
+          <div id="filter-team" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="team">All Teams ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+        <!-- Course (type-ahead) -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Course</label>
+          <div id="filter-course" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="course">All Courses ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+        <!-- Tactic -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Tactic</label>
+          <div id="filter-tactic" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="tactic">All Tactics ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+        <!-- College (type-ahead) -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">College</label>
+          <div id="filter-college" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="college">All Colleges ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+        <!-- Student Query -->
+        <div class="explorer-filter-group">
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Query Type</label>
+          <div id="filter-bucket" class="explorer-dropdown" tabindex="0">
+            <div class="explorer-dropdown-trigger" data-filter="bucket">All Queries ▾</div>
+            <div class="explorer-dropdown-menu hidden"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Active filter tags -->
+      <div id="explorer-active-filters" class="flex flex-wrap gap-1 mt-3 hidden"></div>
+    </div>
+
     <div class="overflow-x-auto">
       <table class="data-table">
         <thead>
           <tr>
             <th>Counsellor</th>
+            <th>Team</th>
             <th>Course</th>
-            <th>Duration</th>
-            <th>Turns</th>
+            <th class="cursor-pointer hover:text-indigo-600" data-sort="duration">Duration ⇅</th>
+            <th class="cursor-pointer hover:text-indigo-600" data-sort="total_turns">Turns ⇅</th>
             <th>Stage</th>
             <th>Outcome</th>
             <th>Summary</th>

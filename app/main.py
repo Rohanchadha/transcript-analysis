@@ -440,9 +440,10 @@ def aggregate_data():
             entry["buckets"] = list({q["bucket"] for q in an.get("query_buckets", [])})
             entry["tactics_used"] = list({t["tactic"] for t in an.get("counsellor_tactics", [])})
             entry["caller_type"] = an["student_profile"].get("caller_type", "unclear")
+            entry["colleges"] = list({c["name"] for c in an.get("colleges_discussed", []) if c.get("name")})
         else:
             entry.update(course="N/A", outcome=r.get("skip_reason", "error"),
-                         summary="Not analyzed", buckets=[], tactics_used=[], caller_type="unknown")
+                         summary="Not analyzed", buckets=[], tactics_used=[], caller_type="unknown", colleges=[])
         call_list.append(entry)
     a["call_list"] = call_list
 

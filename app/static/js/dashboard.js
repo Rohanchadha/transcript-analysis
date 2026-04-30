@@ -107,27 +107,42 @@ function initQueries() {
 
   chartHBar('chart-buckets', labels, counts, 'Query Frequency');
 
-  const container = $('#bucket-cards');
-  container.innerHTML = '';
-  labels.forEach((bucket, i) => {
-    const data = buckets[bucket];
-    const INITIAL = 3;
-    const hasMore = data.examples.length > INITIAL;
-    const uid = `bucket-${i}`;
-    const card = document.createElement('div');
-    card.className = 'insight-card';
-    card.id = `${uid}-card`;
-    card.innerHTML = `
-      <div class="flex items-center justify-between mb-2">
-        <h4 class="font-semibold text-slate-800">${h(bucket)}</h4>
-        <span class="badge badge-indigo">${data.count} queries</span>
-      </div>
-      <div class="space-y-2" id="${uid}-list">
-        ${data.examples.slice(0, INITIAL).map(ex => renderBucketExample(ex)).join('')}
-      </div>
-      ${hasMore ? renderToggleBtn(uid, 'bucket', i, data.examples.length - INITIAL) : ''}`;
-    container.appendChild(card);
+  // Populate filter dropdown
+  const filterEl = $('#query-bucket-filter');
+  labels.forEach(label => {
+    const opt = document.createElement('option');
+    opt.value = label;
+    opt.textContent = `${label} (${buckets[label].count})`;
+    filterEl.appendChild(opt);
   });
+
+  function renderBucketCards(filterVal) {
+    const container = $('#bucket-cards');
+    container.innerHTML = '';
+    const showLabels = filterVal === 'all' ? labels : labels.filter(l => l === filterVal);
+    showLabels.forEach((bucket, i) => {
+      const data = buckets[bucket];
+      const INITIAL = 3;
+      const hasMore = data.examples.length > INITIAL;
+      const uid = `bucket-${labels.indexOf(bucket)}`;
+      const card = document.createElement('div');
+      card.className = 'insight-card';
+      card.id = `${uid}-card`;
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-semibold text-slate-800">${h(bucket)}</h4>
+          <span class="badge badge-indigo">${data.count} queries</span>
+        </div>
+        <div class="space-y-2" id="${uid}-list">
+          ${data.examples.slice(0, INITIAL).map(ex => renderBucketExample(ex)).join('')}
+        </div>
+        ${hasMore ? renderToggleBtn(uid, 'bucket', labels.indexOf(bucket), data.examples.length - INITIAL) : ''}`;
+      container.appendChild(card);
+    });
+  }
+
+  filterEl.addEventListener('change', () => renderBucketCards(filterEl.value));
+  renderBucketCards('all');
 }
 
 /* ==================================================================== */
@@ -140,8 +155,14 @@ function initTactics() {
 
   chartHBar('chart-tactics', labels, counts, 'Tactic Usage (# of calls)');
 
-  const container = $('#tactic-cards');
-  container.innerHTML = '';
+  // Populate filter dropdown
+  const filterEl = $('#tactic-filter');
+  labels.forEach(label => {
+    const opt = document.createElement('option');
+    opt.value = label;
+    opt.textContent = `${label} (${tactics[label].count})`;
+    filterEl.appendChild(opt);
+  });
 
   const tacticTips = {
     'Rapport Building': 'Start every bot call with warm greeting + reference to their website action.',
@@ -160,30 +181,39 @@ function initTactics() {
     'Callback Scheduling': 'Always set a specific next touchpoint. "I\'ll call Monday with more options."',
   };
 
-  labels.forEach((tactic, i) => {
-    const data = tactics[tactic];
-    const INITIAL = 3;
-    const hasMore = data.examples.length > INITIAL;
-    const uid = `tactic-${i}`;
-    const card = document.createElement('div');
-    card.className = 'insight-card';
-    card.id = `${uid}-card`;
-    const tip = tacticTips[tactic] || '';
-    card.innerHTML = `
-      <div class="flex items-center justify-between mb-2">
-        <h4 class="font-semibold text-slate-800">${h(tactic)}</h4>
-        <div>
-          <span class="badge badge-indigo">${data.count} calls</span>
-          <span class="badge badge-green ml-1">${data.pct}%</span>
+  function renderTacticCards(filterVal) {
+    const container = $('#tactic-cards');
+    container.innerHTML = '';
+    const showLabels = filterVal === 'all' ? labels : labels.filter(l => l === filterVal);
+    showLabels.forEach((tactic) => {
+      const i = labels.indexOf(tactic);
+      const data = tactics[tactic];
+      const INITIAL = 3;
+      const hasMore = data.examples.length > INITIAL;
+      const uid = `tactic-${i}`;
+      const card = document.createElement('div');
+      card.className = 'insight-card';
+      card.id = `${uid}-card`;
+      const tip = tacticTips[tactic] || '';
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-semibold text-slate-800">${h(tactic)}</h4>
+          <div>
+            <span class="badge badge-indigo">${data.count} calls</span>
+            <span class="badge badge-green ml-1">${data.pct}%</span>
+          </div>
         </div>
-      </div>
-      ${tip ? `<div class="text-sm text-indigo-700 bg-indigo-50 rounded px-3 py-2 mb-2">🤖 <strong>Bot Tip:</strong> ${h(tip)}</div>` : ''}
-      <div class="space-y-2" id="${uid}-list">
-        ${data.examples.slice(0, INITIAL).map(ex => renderTacticExample(ex)).join('')}
-      </div>
-      ${hasMore ? renderToggleBtn(uid, 'tactic', i, data.examples.length - INITIAL) : ''}`;
-    container.appendChild(card);
-  });
+        ${tip ? `<div class="text-sm text-indigo-700 bg-indigo-50 rounded px-3 py-2 mb-2">🤖 <strong>Bot Tip:</strong> ${h(tip)}</div>` : ''}
+        <div class="space-y-2" id="${uid}-list">
+          ${data.examples.slice(0, INITIAL).map(ex => renderTacticExample(ex)).join('')}
+        </div>
+        ${hasMore ? renderToggleBtn(uid, 'tactic', i, data.examples.length - INITIAL) : ''}`;
+      container.appendChild(card);
+    });
+  }
+
+  filterEl.addEventListener('change', () => renderTacticCards(filterEl.value));
+  renderTacticCards('all');
 }
 
 /* ==================================================================== */
@@ -215,9 +245,14 @@ function initObjections() {
       </div>`;
   });
 
-  // Example cards
-  const container = $('#objection-cards');
-  container.innerHTML = '';
+  // Populate filter dropdown
+  const filterEl = $('#objection-filter');
+  labels.forEach(label => {
+    const opt = document.createElement('option');
+    opt.value = label;
+    opt.textContent = `${label.replace(/_/g, ' ')} (${objs[label].count})`;
+    filterEl.appendChild(opt);
+  });
 
   const botScripts = {
     'budget_concern': 'Acknowledge budget, then pitch ROI: "I understand budget is important. Let me show you colleges where the placement package is 5-10x the fee investment."',
@@ -230,30 +265,39 @@ function initObjections() {
     'family_pressure': 'Involve family: "I\'d love to speak with your parents too. Often a quick chat about placement data helps families feel confident about the decision."',
   };
 
-  labels.forEach((objType, i) => {
-    const data = objs[objType];
-    const INITIAL = 3;
-    const hasMore = data.examples.length > INITIAL;
-    const uid = `obj-${i}`;
-    const card = document.createElement('div');
-    card.className = 'insight-card';
-    card.id = `${uid}-card`;
-    const script = botScripts[objType] || '';
-    card.innerHTML = `
-      <div class="flex items-center justify-between mb-2">
-        <h4 class="font-semibold text-slate-800">${h(objType.replace(/_/g, ' '))}</h4>
-        <div>
-          <span class="badge badge-amber">${data.count} times</span>
-          <span class="badge ${data.resolution_rate >= 60 ? 'badge-green' : 'badge-red'} ml-1">${data.resolution_rate}% resolved</span>
+  function renderObjCards(filterVal) {
+    const container = $('#objection-cards');
+    container.innerHTML = '';
+    const showLabels = filterVal === 'all' ? labels : labels.filter(l => l === filterVal);
+    showLabels.forEach((objType) => {
+      const i = labels.indexOf(objType);
+      const data = objs[objType];
+      const INITIAL = 3;
+      const hasMore = data.examples.length > INITIAL;
+      const uid = `obj-${i}`;
+      const card = document.createElement('div');
+      card.className = 'insight-card';
+      card.id = `${uid}-card`;
+      const script = botScripts[objType] || '';
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-semibold text-slate-800">${h(objType.replace(/_/g, ' '))}</h4>
+          <div>
+            <span class="badge badge-amber">${data.count} times</span>
+            <span class="badge ${data.resolution_rate >= 60 ? 'badge-green' : 'badge-red'} ml-1">${data.resolution_rate}% resolved</span>
+          </div>
         </div>
-      </div>
-      ${script ? `<div class="text-sm text-amber-800 bg-amber-50 rounded px-3 py-2 mb-2">🤖 <strong>Suggested Bot Script:</strong> ${h(script)}</div>` : ''}
-      <div class="space-y-3" id="${uid}-list">
-        ${data.examples.slice(0, INITIAL).map(ex => renderObjExample(ex)).join('')}
-      </div>
-      ${hasMore ? renderToggleBtn(uid, 'objection', i, data.examples.length - INITIAL) : ''}`;
-    container.appendChild(card);
-  });
+        ${script ? `<div class="text-sm text-amber-800 bg-amber-50 rounded px-3 py-2 mb-2">🤖 <strong>Suggested Bot Script:</strong> ${h(script)}</div>` : ''}
+        <div class="space-y-3" id="${uid}-list">
+          ${data.examples.slice(0, INITIAL).map(ex => renderObjExample(ex)).join('')}
+        </div>
+        ${hasMore ? renderToggleBtn(uid, 'objection', i, data.examples.length - INITIAL) : ''}`;
+      container.appendChild(card);
+    });
+  }
+
+  filterEl.addEventListener('change', () => renderObjCards(filterEl.value));
+  renderObjCards('all');
 }
 
 /* ==================================================================== */
@@ -313,30 +357,176 @@ let explorerData = [];
 
 function initExplorer() {
   explorerData = D.call_list || [];
-  renderExplorerTable(explorerData);
 
-  const filterExplorer = () => {
-    const q = ($('#explorer-search').value || '').toLowerCase();
-    const gender = $('#explorer-gender').value;
-    let filtered = explorerData;
-    if (gender !== 'all') {
-      filtered = filtered.filter(c => (c.student_gender || 'unclear') === gender);
-    }
-    if (q) {
-      filtered = filtered.filter(c =>
-        c.counsellor.toLowerCase().includes(q) ||
-        c.course.toLowerCase().includes(q) ||
-        c.summary.toLowerCase().includes(q) ||
-        c.team.toLowerCase().includes(q) ||
-        c.stage.toLowerCase().includes(q) ||
-        (c.buckets || []).join(' ').toLowerCase().includes(q)
-      );
-    }
-    renderExplorerTable(filtered);
+  // ── Build filter option sets from data ──
+  const filterDefs = {
+    outcome:    { field: 'outcome',    label: 'All Outcomes',    search: false, extract: c => [c.outcome] },
+    stage:      { field: 'stage',      label: 'All Stages',      search: false, extract: c => [c.stage] },
+    counsellor: { field: 'counsellor', label: 'All Counsellors', search: true,  extract: c => [c.counsellor] },
+    team:       { field: 'team',       label: 'All Teams',       search: false, extract: c => [c.team] },
+    course:     { field: 'course',     label: 'All Courses',     search: true,  extract: c => [c.course] },
+    tactic:     { field: 'tactic',     label: 'All Tactics',     search: false, extract: c => c.tactics_used || [] },
+    college:    { field: 'college',    label: 'All Colleges',    search: true,  extract: c => c.colleges || [] },
+    bucket:     { field: 'bucket',     label: 'All Queries',     search: false, extract: c => c.buckets || [] },
   };
 
-  $('#explorer-search').addEventListener('input', filterExplorer);
-  $('#explorer-gender').addEventListener('change', filterExplorer);
+  const activeFilters = {};  // { field: Set of checked values }
+
+  // ── Populate each dropdown ──
+  Object.entries(filterDefs).forEach(([key, def]) => {
+    activeFilters[key] = new Set();
+    const vals = new Map();
+    explorerData.forEach(c => {
+      def.extract(c).forEach(v => {
+        if (v && v !== 'N/A' && v !== 'Unknown' && v !== 'error' && v !== 'too_short') {
+          vals.set(v, (vals.get(v) || 0) + 1);
+        }
+      });
+    });
+    const sorted = [...vals.entries()].sort((a, b) => b[1] - a[1]);
+
+    const container = $(`#filter-${key}`);
+    const trigger = container.querySelector('.explorer-dropdown-trigger');
+    const menu = container.querySelector('.explorer-dropdown-menu');
+
+    let menuHtml = '';
+    if (def.search) menuHtml += `<input type="text" class="dd-search" placeholder="Type to filter…">`;
+    sorted.forEach(([val, cnt]) => {
+      const id = `flt-${key}-${val.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      menuHtml += `<label data-val="${h(val)}"><input type="checkbox" value="${h(val)}" id="${id}"> ${h(val)} <span style="color:#94a3b8;margin-left:auto">(${cnt})</span></label>`;
+    });
+    menu.innerHTML = menuHtml;
+
+    // Toggle dropdown
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.explorer-dropdown-menu').forEach(m => { if (m !== menu) m.classList.add('hidden'); });
+      menu.classList.toggle('hidden');
+    });
+
+    // Checkbox change
+    menu.addEventListener('change', (e) => {
+      if (e.target.type !== 'checkbox') return;
+      if (e.target.checked) activeFilters[key].add(e.target.value);
+      else activeFilters[key].delete(e.target.value);
+      const n = activeFilters[key].size;
+      trigger.textContent = n ? `${n} selected ▾` : `${def.label} ▾`;
+      applyExplorerFilters();
+    });
+
+    // Type-ahead search within dropdown
+    if (def.search) {
+      const searchInput = menu.querySelector('.dd-search');
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase();
+        menu.querySelectorAll('label').forEach(lbl => {
+          lbl.style.display = lbl.dataset.val.toLowerCase().includes(q) ? '' : 'none';
+        });
+      });
+      searchInput.addEventListener('click', e => e.stopPropagation());
+    }
+  });
+
+  // ── Close dropdowns on outside click ──
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.explorer-dropdown-menu').forEach(m => m.classList.add('hidden'));
+  });
+
+  // ── Sort state ──
+  let sortField = null, sortDir = 'desc';
+
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const field = th.dataset.sort;
+      if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else { sortField = field; sortDir = 'desc'; }
+      document.querySelectorAll('th[data-sort]').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+      th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+      applyExplorerFilters();
+    });
+  });
+
+  // ── Clear all ──
+  $('#explorer-clear-filters').addEventListener('click', () => {
+    Object.keys(activeFilters).forEach(key => activeFilters[key].clear());
+    document.querySelectorAll('.explorer-dropdown-menu input[type=checkbox]').forEach(cb => cb.checked = false);
+    Object.entries(filterDefs).forEach(([key, def]) => {
+      $(`#filter-${key} .explorer-dropdown-trigger`).textContent = `${def.label} ▾`;
+    });
+    $('#explorer-search').value = '';
+    sortField = null; sortDir = 'desc';
+    document.querySelectorAll('th[data-sort]').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+    applyExplorerFilters();
+  });
+
+  // ── Search ──
+  $('#explorer-search').addEventListener('input', applyExplorerFilters);
+
+  // ── Main filter + sort function ──
+  function applyExplorerFilters() {
+    let filtered = explorerData;
+
+    // Multi-select filters
+    Object.entries(activeFilters).forEach(([key, selected]) => {
+      if (selected.size === 0) return;
+      const def = filterDefs[key];
+      filtered = filtered.filter(c => {
+        const vals = def.extract(c);
+        return vals.some(v => selected.has(v));
+      });
+    });
+
+    // Text search
+    const q = ($('#explorer-search').value || '').toLowerCase();
+    if (q) {
+      filtered = filtered.filter(c =>
+        (c.counsellor || '').toLowerCase().includes(q) ||
+        (c.course || '').toLowerCase().includes(q) ||
+        (c.summary || '').toLowerCase().includes(q) ||
+        (c.team || '').toLowerCase().includes(q) ||
+        (c.stage || '').toLowerCase().includes(q) ||
+        (c.outcome || '').toLowerCase().includes(q) ||
+        (c.buckets || []).join(' ').toLowerCase().includes(q) ||
+        (c.colleges || []).join(' ').toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    if (sortField) {
+      filtered = [...filtered].sort((a, b) => {
+        const va = a[sortField] || 0, vb = b[sortField] || 0;
+        return sortDir === 'asc' ? va - vb : vb - va;
+      });
+    }
+
+    // Active filter tags
+    const tagContainer = $('#explorer-active-filters');
+    const tags = [];
+    Object.entries(activeFilters).forEach(([key, selected]) => {
+      selected.forEach(v => tags.push(`<span class="filter-tag" data-key="${key}" data-val="${h(v)}">${key}: ${h(v)} ✕</span>`));
+    });
+    if (tags.length) {
+      tagContainer.innerHTML = tags.join('');
+      tagContainer.classList.remove('hidden');
+      tagContainer.querySelectorAll('.filter-tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+          const k = tag.dataset.key, v = tag.dataset.val;
+          activeFilters[k].delete(v);
+          const cb = document.querySelector(`#filter-${k} input[value="${v}"]`);
+          if (cb) cb.checked = false;
+          const n = activeFilters[k].size;
+          $(`#filter-${k} .explorer-dropdown-trigger`).textContent = n ? `${n} selected ▾` : `${filterDefs[k].label} ▾`;
+          applyExplorerFilters();
+        });
+      });
+    } else {
+      tagContainer.classList.add('hidden');
+    }
+
+    renderExplorerTable(filtered);
+  }
+
+  applyExplorerFilters();
 }
 
 function renderExplorerTable(data) {
@@ -348,11 +538,13 @@ function renderExplorerTable(data) {
     const outcomeBadge = c.outcome === 'application_started' ? 'badge-green' :
                          c.outcome.includes('interested') ? 'badge-indigo' :
                          c.outcome.includes('callback') ? 'badge-amber' : 'badge-slate';
+
     const tr = document.createElement('tr');
     tr.className = 'cursor-pointer';
     tr.onclick = () => openTranscript(c.id);
     tr.innerHTML = `
       <td class="font-medium">${h(c.counsellor)}</td>
+      <td class="text-xs">${h(c.team)}</td>
       <td>${h(c.course)}</td>
       <td>${mins(c.duration)}</td>
       <td>${c.total_turns}</td>
