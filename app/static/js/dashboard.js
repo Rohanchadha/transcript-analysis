@@ -569,6 +569,35 @@ async function openTranscript(callId) {
     const { analysis: a, transcript: t } = data;
     const an = a?.analysis;
     const meta = a?.metadata;
+    const turns = t?.turns || [];
+
+    // Helper: find the turn index whose text best matches a quote
+    function findTurnForQuote(quote) {
+      if (!quote || !turns.length) return -1;
+      const normalize = s => s.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+      const q = normalize(quote);
+      if (!q) return -1;
+
+      // Extract meaningful words (length > 2)
+      const qWords = q.split(' ').filter(w => w.length > 2);
+      if (!qWords.length) return -1;
+
+      // Score each turn by word overlap
+      let bestIdx = -1, bestScore = 0;
+      for (let i = 0; i < turns.length; i++) {
+        const txt = normalize(turns[i].text);
+        const tWords = new Set(txt.split(' '));
+        let overlap = 0;
+        for (const w of qWords) {
+          if (tWords.has(w)) overlap++;
+        }
+        // Also try substring containment for short quotes
+        if (txt.includes(q)) return i;
+        if (overlap > bestScore) { bestScore = overlap; bestIdx = i; }
+      }
+      // Require at least 40% of quote words to match
+      return (bestScore >= 2 && bestScore >= qWords.length * 0.3) ? bestIdx : -1;
+    }
 
     let html = '';
 
@@ -603,9 +632,44 @@ async function openTranscript(callId) {
         </div>
       </div>`;
 
-      // Tactics used
-      html += `<div class="mb-4"><h4 class="font-semibold text-slate-800 mb-2">Tactics Used</h4>
-        <div class="flex flex-wrap gap-1">${an.counsellor_tactics.map(t => `<span class="badge badge-indigo">${h(t.tactic)}</span>`).join('')}</div>
+      // Student Queries
+      if (an.query_buckets?.length) {
+        html += `<div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-semibold text-slate-800">Student Queries</h4>
+            <button class="text-xs text-green-600 hover:text-green-800 font-medium" onclick="this.parentElement.nextElementSibling.nextElementSibling.classList.toggle('hidden');this.textContent=this.textContent==='Show details'?'Hide details':'Show details'">Show details</button>
+          </div>
+          <div class="flex flex-wrap gap-1 mb-2">${[...new Set(an.query_buckets.map(q => q.bucket))].map(b =>
+            `<span class="badge badge-green cursor-pointer hover:ring-2 hover:ring-green-300 transcript-nav-pill" data-quote-source="query" data-bucket="${h(b)}">${h(b)}</span>`
+          ).join('')}</div>
+          <div class="space-y-2 hidden">
+          ${an.query_buckets.map(q => `<div class="text-sm bg-green-50 rounded p-2 border border-green-100">
+            <span class="font-medium text-green-800">${h(q.bucket)}:</span>
+            <span class="text-green-700">${h(q.query)}</span>
+            ${q.quote ? `<div class="text-xs text-green-600 mt-1 italic">"${h(q.quote)}"</div>` : ''}
+            ${q.translation ? `<div class="text-xs text-slate-500">${h(q.translation)}</div>` : ''}
+          </div>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      // Tactics used — clickable pills with quotes
+      html += `<div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-semibold text-slate-800">Tactics Used</h4>
+          <button class="text-xs text-indigo-600 hover:text-indigo-800 font-medium" onclick="this.parentElement.nextElementSibling.nextElementSibling.classList.toggle('hidden');this.textContent=this.textContent==='Show details'?'Hide details':'Show details'">Show details</button>
+        </div>
+        <div class="flex flex-wrap gap-1 mb-2">${an.counsellor_tactics.map((t, ti) =>
+          `<span class="badge badge-indigo cursor-pointer hover:ring-2 hover:ring-indigo-300 transcript-nav-pill" data-quote-source="tactic" data-tactic-idx="${ti}">${h(t.tactic)}</span>`
+        ).join('')}</div>
+        <div class="space-y-2 hidden">
+        ${an.counsellor_tactics.map(t => `<div class="text-sm bg-indigo-50 rounded p-2 border border-indigo-100">
+          <span class="font-medium text-indigo-800">${h(t.tactic)}:</span>
+          <span class="text-indigo-700">${h(t.description)}</span>
+          ${t.quote ? `<div class="text-xs text-indigo-600 mt-1 italic">"${h(t.quote)}"</div>` : ''}
+          ${t.translation ? `<div class="text-xs text-slate-500">${h(t.translation)}</div>` : ''}
+        </div>`).join('')}
+        </div>
       </div>`;
 
       // Colleges
@@ -621,12 +685,12 @@ async function openTranscript(callId) {
       }
     }
 
-    // Full transcript
-    if (t?.turns) {
+    // Full transcript — each turn gets a unique ID for navigation
+    if (turns.length) {
       html += `<div class="card"><h4 class="font-semibold text-slate-800 mb-3">Full Transcript</h4>
-        <div class="space-y-1">
-        ${t.turns.map(turn => `
-          <div class="turn turn-${turn.speaker.toLowerCase()}">
+        <div class="space-y-1" id="transcript-turns">
+        ${turns.map((turn, i) => `
+          <div class="turn turn-${turn.speaker.toLowerCase()}" id="turn-${i}">
             <span class="turn-time">[${turn.start_time}]</span>
             <span class="turn-speaker">${turn.speaker}:</span>
             <span class="turn-text">${h(turn.text)}</span>
@@ -636,6 +700,34 @@ async function openTranscript(callId) {
     }
 
     body.innerHTML = html;
+
+    // Wire up clickable pills to navigate to transcript
+    if (an && turns.length) {
+      body.querySelectorAll('.transcript-nav-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          let quote = '';
+          const src = pill.dataset.quoteSource;
+          if (src === 'tactic') {
+            const idx = parseInt(pill.dataset.tacticIdx);
+            quote = an.counsellor_tactics[idx]?.quote || '';
+          } else if (src === 'query') {
+            const bucket = pill.dataset.bucket;
+            const q = an.query_buckets.find(q => q.bucket === bucket);
+            quote = q?.quote || '';
+          }
+          const turnIdx = findTurnForQuote(quote);
+          if (turnIdx >= 0) {
+            const el = document.getElementById(`turn-${turnIdx}`);
+            if (el) {
+              // Remove previous highlights
+              body.querySelectorAll('.turn-highlight').forEach(t => t.classList.remove('turn-highlight'));
+              el.classList.add('turn-highlight');
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        });
+      });
+    }
   } catch (err) {
     body.innerHTML = `<p class="text-red-500">Error loading transcript: ${h(err.message)}</p>`;
   }

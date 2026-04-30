@@ -155,6 +155,17 @@ th[data-sort] { user-select: none; }
 th[data-sort].sort-asc::after { content: ' ▲'; font-size: 10px; }
 th[data-sort].sort-desc::after { content: ' ▼'; font-size: 10px; }
 
+/* ---- Transcript turn highlight on pill click ---- */
+.turn-highlight {
+  background: #fef9c3 !important;
+  border-left: 3px solid #eab308;
+  padding-left: 8px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+.transcript-nav-pill { transition: all 0.15s ease; }
+.transcript-nav-pill:hover { transform: scale(1.05); }
+
 /* ---- Modal ---- */
 .modal-overlay {
   position: fixed; inset: 0;
