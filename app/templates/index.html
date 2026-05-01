@@ -19,17 +19,103 @@
 <!-- HEADER                                                          -->
 <!-- ============================================================== -->
 <header class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-600 text-white shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
+  <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
     <div>
       <h1 class="text-2xl font-bold tracking-tight">📞 Shiksha Transcript Insights</h1>
       <p class="text-indigo-200 text-sm mt-0.5">Analysing 100 human counsellor calls to build a smarter voice bot</p>
     </div>
-    <div class="text-right text-xs text-indigo-200">
-      <div>Powered by GPT-4o-mini analysis</div>
-      <div class="mt-0.5">Shiksha.com Counselling Team</div>
+    <div class="flex items-center gap-3">
+      <!-- Global counsellor filter — searchable, applies across every section -->
+      <form method="get" action="/" id="global-filter-form" class="flex items-center gap-2">
+        <label for="global-counsellor-search" class="text-xs uppercase tracking-wide text-indigo-100 hidden md:block">
+          Counsellor
+        </label>
+        <div class="relative" id="global-counsellor-wrap">
+          <input type="hidden" name="counsellor" id="global-counsellor-value" value="{{ selected_counsellor }}">
+          <input type="text"
+                 id="global-counsellor-search"
+                 autocomplete="off"
+                 placeholder="All Counsellors"
+                 value="{{ selected_counsellor }}"
+                 class="bg-white/95 text-slate-800 text-sm rounded-lg pl-3 pr-8 py-1.5 border-0 focus:outline-none focus:ring-2 focus:ring-white shadow-sm w-[260px]">
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">▾</span>
+          <div id="global-counsellor-menu"
+               class="hidden absolute left-0 right-0 mt-1 max-h-72 overflow-y-auto bg-white text-slate-800 rounded-lg shadow-xl border border-slate-200 z-50 text-sm">
+            <button type="button" data-name="" class="counsellor-option block w-full text-left px-3 py-2 hover:bg-indigo-50 border-b border-slate-100">
+              <span class="font-medium">All Counsellors</span>
+            </button>
+            {% for c in counsellors %}
+              <button type="button" data-name="{{ c.name }}"
+                      class="counsellor-option block w-full text-left px-3 py-2 hover:bg-indigo-50">
+                <span>{{ c.name }}</span>
+                <span class="text-slate-400 text-xs ml-1">({{ c.count }})</span>
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+        {% if selected_counsellor %}
+          <a href="/" class="text-xs text-indigo-100 hover:text-white underline whitespace-nowrap" title="Clear filter">✕ Clear</a>
+        {% endif %}
+      </form>
     </div>
   </div>
+  {% if selected_counsellor %}
+    <div class="bg-amber-400 text-amber-950 text-sm py-1.5 px-4 text-center font-medium">
+      🎯 Filtered by counsellor: <strong>{{ selected_counsellor }}</strong> — all sections show data only from this counsellor's calls.
+    </div>
+  {% endif %}
 </header>
+
+<script>
+(function () {
+  const wrap   = document.getElementById('global-counsellor-wrap');
+  const input  = document.getElementById('global-counsellor-search');
+  const hidden = document.getElementById('global-counsellor-value');
+  const menu   = document.getElementById('global-counsellor-menu');
+  const form   = document.getElementById('global-filter-form');
+  if (!wrap || !input || !menu || !form) return;
+
+  const opts = Array.from(menu.querySelectorAll('.counsellor-option'));
+
+  function showMenu() { menu.classList.remove('hidden'); }
+  function hideMenu() { menu.classList.add('hidden'); }
+
+  function applyFilter() {
+    const q = input.value.trim().toLowerCase();
+    opts.forEach(o => {
+      const name = (o.dataset.name || '').toLowerCase();
+      // The "All Counsellors" entry (empty data-name) always shows.
+      o.style.display = (!name || name.includes(q)) ? '' : 'none';
+    });
+  }
+
+  input.addEventListener('focus', () => { applyFilter(); showMenu(); });
+  input.addEventListener('input', () => { applyFilter(); showMenu(); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { hideMenu(); input.blur(); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const visible = opts.filter(o => o.style.display !== 'none');
+      if (visible.length) {
+        const pick = visible[0];
+        hidden.value = pick.dataset.name;
+        form.submit();
+      }
+    }
+  });
+
+  opts.forEach(o => {
+    o.addEventListener('click', () => {
+      hidden.value = o.dataset.name;
+      form.submit();
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) hideMenu();
+  });
+})();
+</script>
 
 <!-- ============================================================== -->
 <!-- TAB NAVIGATION                                                  -->

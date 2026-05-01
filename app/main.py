@@ -99,9 +99,24 @@ def _classify_college_info(query_text: str) -> str:
     return "Other College Queries"
 
 
-def aggregate_data():
-    results = [r for r in store["analysis"] if r.get("analysis")]
-    all_records = store["analysis"]
+def aggregate_data(counsellor_filter: str | None = None) -> dict:
+    """Compute aggregations across all analysis records.
+
+    If `counsellor_filter` is set, only records whose `metadata.counsellor_name`
+    matches (case-insensitive) are included. The unfiltered result is also
+    cached in `store["agg"]`.
+    """
+    all_analysis = store["analysis"]
+    if counsellor_filter:
+        cf = counsellor_filter.strip().lower()
+        all_records = [
+            r for r in all_analysis
+            if (r.get("metadata") or {}).get("counsellor_name", "").lower() == cf
+        ]
+    else:
+        all_records = all_analysis
+
+    results = [r for r in all_records if r.get("analysis")]
     a: dict = {}
 
     # ---- Overview ----------------------------------------------------------
@@ -447,16 +462,105 @@ def aggregate_data():
         call_list.append(entry)
     a["call_list"] = call_list
 
+    # ---- Attach institute USPs (optionally filtered by counsellor) --------
+    usps = store.get("institute_usps", {})
+    if counsellor_filter and usps:
+        # Build set of transcript IDs belonging to this counsellor
+        allowed_ids = {r["id"] for r in all_records}
+        a["institute_usps"] = _filter_institute_usps(usps, allowed_ids)
+    elif usps:
+        a["institute_usps"] = usps
+
+    # ---- Attach deep-dive insights (optionally filtered) ------------------
+    dd = store.get("deep_dive", {})
+    if dd:
+        if counsellor_filter:
+            a["deep_dive"] = _filter_deep_dive(dd, all_records, counsellor_filter)
+        else:
+            a["deep_dive"] = {
+                "urgency_analysis": dd.get("urgency_analysis", {}),
+                "gender_analysis": dd.get("gender_analysis", {}),
+            }
+
+    if counsellor_filter:
+        return a
+
     store["agg"] = a
-    # Attach institute USPs if loaded
-    if store.get("institute_usps"):
-        store["agg"]["institute_usps"] = store["institute_usps"]
-    # Attach deep dive insights if loaded
-    if store.get("deep_dive"):
-        store["agg"]["deep_dive"] = {
-            "urgency_analysis": store["deep_dive"].get("urgency_analysis", {}),
-            "gender_analysis": store["deep_dive"].get("gender_analysis", {}),
+    return a
+
+
+def _filter_institute_usps(usps: dict, allowed_call_ids: set) -> dict:
+    """Filter institute USPs to only include data sourced from given call IDs."""
+    filtered: dict = {}
+    for name, inst in usps.items():
+        # Filter pitch_points and fee_details by source_call
+        new_pp = [pp for pp in inst.get("pitch_points", [])
+                  if pp.get("source_call") in allowed_call_ids]
+        new_fees = [f for f in inst.get("fee_details", [])
+                    if f.get("source_call") in allowed_call_ids]
+        # Drop institutes the counsellor never mentioned
+        if not new_pp and not new_fees:
+            continue
+        new_inst = dict(inst)
+        new_inst["pitch_points"] = new_pp
+        new_inst["fee_details"] = new_fees
+        # Recompute mention_count as # of distinct allowed source calls touching this institute
+        sources = {pp.get("source_call") for pp in new_pp} | {f.get("source_call") for f in new_fees}
+        new_inst["mention_count"] = len([s for s in sources if s])
+        filtered[name] = new_inst
+    # Sort by mention_count desc to preserve original ordering convention
+    return dict(sorted(filtered.items(), key=lambda kv: -kv[1].get("mention_count", 0)))
+
+
+def _filter_deep_dive(dd: dict, records: list, counsellor_filter: str) -> dict:
+    """Filter deep_dive insights to a single counsellor.
+
+    - urgency_examples: filter by counsellor name (case-insensitive)
+    - with_urgency / without_urgency stats: recomputed from filtered records
+    - gender_analysis: pass-through (aggregated, not filterable cleanly)
+    """
+    cf = counsellor_filter.strip().lower()
+    urg_in = dd.get("urgency_analysis", {}) or {}
+    examples = urg_in.get("urgency_examples", []) or []
+    filtered_examples = [
+        ex for ex in examples
+        if (ex.get("counsellor", "") or "").strip().lower() == cf
+    ]
+
+    # Recompute urgency_types breakdown
+    type_counts: Counter = Counter()
+    for ex in filtered_examples:
+        t = ex.get("urgency_type") or ex.get("type") or "other"
+        type_counts[t] += 1
+
+    # Calls with at least one urgency mention (within this counsellor's calls)
+    urgency_call_ids = {ex.get("call_id") for ex in filtered_examples if ex.get("call_id")}
+    with_records = [r for r in records if r["id"] in urgency_call_ids and r.get("analysis")]
+    without_records = [r for r in records if r["id"] not in urgency_call_ids and r.get("analysis")]
+
+    def _stats(recs):
+        n = len(recs)
+        if n == 0:
+            return {"count": 0, "application_rate": 0, "whatsapp_rate": 0}
+        apps = sum(1 for r in recs if r["analysis"]["call_outcome"].get("application_started"))
+        wa = sum(1 for r in recs if r["analysis"]["call_outcome"].get("whatsapp_handoff"))
+        return {
+            "count": n,
+            "application_rate": round(apps / n * 100, 1),
+            "whatsapp_rate": round(wa / n * 100, 1),
         }
+
+    urg_out = {
+        "key_finding": urg_in.get("key_finding", ""),
+        "urgency_types": dict(type_counts.most_common()),
+        "urgency_examples": filtered_examples,
+        "with_urgency": _stats(with_records),
+        "without_urgency": _stats(without_records),
+    }
+    return {
+        "urgency_analysis": urg_out,
+        "gender_analysis": dd.get("gender_analysis", {}),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -472,10 +576,27 @@ async def startup():
 # ---------------------------------------------------------------------------
 @app.get("/")
 async def index(request: Request):
+    selected = (request.query_params.get("counsellor") or "").strip()
+    if selected:
+        agg = aggregate_data(counsellor_filter=selected)
+    else:
+        agg = store["agg"]
+
+    # Build the canonical counsellor list (with call counts) from the unfiltered cache.
+    counts = store["agg"].get("counsellors") or {}
+    counsellor_list = [
+        {"name": name, "count": count}
+        for name, count in sorted(counts.items(), key=lambda kv: kv[0].lower())
+    ]
+
     return templates.TemplateResponse(
         name="index.html",
         request=request,
-        context={"data_json": Markup(_safe(store["agg"]))},
+        context={
+            "data_json": Markup(_safe(agg)),
+            "counsellors": counsellor_list,
+            "selected_counsellor": selected,
+        },
     )
 
 
