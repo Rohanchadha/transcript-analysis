@@ -1,0 +1,249 @@
+"""
+Student personas for simulated conversations.
+Extracted from real student profiles in the 100 analyzed calls.
+
+Usage:
+  python eval/simulator/generate_personas.py
+"""
+
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+DATA = ROOT / "data"
+OUT = Path(__file__).resolve().parent
+
+# Manually curated personas based on real call profiles
+PERSONAS = [
+    {
+        "id": "persona_01",
+        "name": "Pragya",
+        "description": "12th pass student exploring BDS through management quota, anxious about NEET",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "BDS",
+            "exam_scores": "12th 82% overall, PCB 70%, NEET not yet taken",
+            "category": "General",
+            "location_preference": "Anywhere except Kerala",
+            "budget": "25-30 lakh for 5 years",
+            "decision_stage": "actively_comparing"
+        },
+        "personality": "anxious, wants reassurance, asks about contingency plans",
+        "opening_message": "Haan maine kiya tha, search kiya tha B D S se related colleges. Mujhe jaanna tha ki fee structure kya hoga agar management quota ke through main jaana chahun to?",
+        "objectives": ["Get fee information for BDS colleges", "Understand NEET cutoff requirements", "Find colleges where just qualifying NEET is enough"],
+        "likely_objections": ["exam_not_ready"]
+    },
+    {
+        "id": "persona_02",
+        "name": "Vikram (Father)",
+        "description": "Parent of twin children, budget-conscious, location-specific (Ghaziabad/Noida)",
+        "caller_type": "parent",
+        "profile": {
+            "course_interest": "BMLT",
+            "exam_scores": "10th 74%, 12th pass PCB, NEET attempt pending",
+            "category": "General",
+            "location_preference": "Ghaziabad/Noida only",
+            "budget": "80K-1L per year per child",
+            "decision_stage": "just_exploring"
+        },
+        "personality": "practical, budget-focused, needs convincing on value, two children to send",
+        "opening_message": "Haan wo BMLT ke liye search kar raha tha main. Mujhe actually kya hai ke Ghaziabad Noida ke hi college chahiye. Do bacche hain ek saath.",
+        "objectives": ["Find BMLT colleges in Ghaziabad/Noida", "Understand total cost for 2 children", "Get scholarship info"],
+        "likely_objections": ["budget_concern", "location_concern"]
+    },
+    {
+        "id": "persona_03",
+        "name": "Krish",
+        "description": "JEE 63 percentile, OBC Bihar, wants good B.Tech CSE, skeptical about private colleges",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Tech CSE",
+            "exam_scores": "JEE 63 percentile, OBC rank 2.02L, 12th expected 80-90%",
+            "category": "OBC",
+            "location_preference": "All India",
+            "budget": "20 lakhs, no major constraint",
+            "decision_stage": "actively_comparing"
+        },
+        "personality": "quality-conscious, skeptical of marketing, wants real placement data, prefers government",
+        "opening_message": "Sir all over India dekh rahe hain. Waise to budget ka nahi sochiye lekin kya aapka government college ke bhi saath linkup hai kya?",
+        "objectives": ["Understand realistic options with 63 percentile", "Compare government vs private value", "Get authentic placement data"],
+        "likely_objections": ["wants_government", "quality_doubt"]
+    },
+    {
+        "id": "persona_04",
+        "name": "Anurag",
+        "description": "B.Pharma student, very tight budget, location locked to Bhopal/Indore",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Pharma",
+            "exam_scores": "12th 78.6%, 10th 81%, no entrance exam",
+            "category": "not_mentioned",
+            "location_preference": "Bhopal or Indore only",
+            "budget": "60-70K per year",
+            "decision_stage": "actively_comparing"
+        },
+        "personality": "quiet, budget-conscious, already applied to 2 colleges, not interested in entrance exams",
+        "opening_message": "B.Pharma karna hai. Bhopal ya Indore se. Budget 60-70 hazaar ek saal ka.",
+        "objectives": ["Find affordable B.Pharma colleges in Bhopal/Indore", "Compare with LNCT & IPS Academy"],
+        "likely_objections": ["budget_concern", "location_concern"]
+    },
+    {
+        "id": "persona_05",
+        "name": "Ayush",
+        "description": "JEE 93 percentile, comparing Amity Gwalior vs government, CSE-focused",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Tech CSE",
+            "exam_scores": "JEE 93.376 percentile",
+            "category": "General",
+            "location_preference": "Gwalior / MP",
+            "budget": "Flexible, negotiating fees",
+            "decision_stage": "actively_comparing"
+        },
+        "personality": "analytical, cross-checks data with student reviews, compares meticulously",
+        "opening_message": "To iska mujhe C.S.E. ka average package aap bata dijiye. Amity Gwalior, Prestige, GL Bajaj.",
+        "objectives": ["Get CSE placement data for Amity Gwalior", "Verify if student reviews match official numbers", "Compare with government college options"],
+        "likely_objections": ["quality_doubt"]
+    },
+    {
+        "id": "persona_06",
+        "name": "Kushan",
+        "description": "Asking about VIT Mauritius international campus, JEE 80 percentile",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Tech",
+            "exam_scores": "JEE 80 percentile",
+            "category": "not_mentioned",
+            "location_preference": "Open to international",
+            "budget": "not_mentioned",
+            "decision_stage": "just_exploring"
+        },
+        "personality": "ambitious, exploring international options, exam fatigue",
+        "opening_message": "Jo sir VIT ka international campus nahi hai? VIT Mauritius aap bol rahe ho na?",
+        "objectives": ["Understand VIT Mauritius admission process", "Compare international vs domestic fees", "Explore Manipal as alternative"],
+        "likely_objections": ["not_interested"]
+    },
+    {
+        "id": "persona_07",
+        "name": "Piyush",
+        "description": "Jharkhand state board, 12th results pending, interested in MIT WPU and budget options",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Tech CSE",
+            "exam_scores": "12th result pending, expected 75%+, 10th CBSE",
+            "category": "not_mentioned",
+            "location_preference": "Jharkhand / Pune / Anywhere affordable",
+            "budget": "7-8 lakhs tuition, 20 lakhs total",
+            "decision_stage": "just_exploring"
+        },
+        "personality": "curious, asks about integrated courses, wants Pune but budget-sensitive",
+        "opening_message": "Computer science ki fee wagera. MIT WPU ka batao aur koi low fee structure ka college hai?",
+        "objectives": ["Compare MIT WPU fees", "Find budget CSE colleges", "Understand integrated vs regular courses"],
+        "likely_objections": ["budget_concern"]
+    },
+    {
+        "id": "persona_08",
+        "name": "Srishti",
+        "description": "MA Economics student, confused about MA vs MBA career prospects",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "MA Economics",
+            "exam_scores": "BA 75%, 12th 80%, 10th 66%, CUET PG taken",
+            "category": "not_mentioned",
+            "location_preference": "Indore / Madhya Pradesh",
+            "budget": "Under 1 lakh for 2 years preferred",
+            "decision_stage": "just_exploring"
+        },
+        "personality": "confused about career path, needs honest advice, comparing MA vs MBA",
+        "opening_message": "MA Economics karna hai. Indore mein. Actually I am a bit confused that I will have a good placement or not after doing MA.",
+        "objectives": ["Find MA colleges in Indore", "Understand MA vs MBA placement difference", "Get honest career advice"],
+        "likely_objections": ["quality_doubt"]
+    },
+    {
+        "id": "persona_09",
+        "name": "Sumit's Father",
+        "description": "Parent, son has JEE 94 percentile EWS, wants B.Tech CSE in Delhi/Haryana",
+        "caller_type": "parent",
+        "profile": {
+            "course_interest": "B.Tech CSE",
+            "exam_scores": "JEE 94 percentile, EWS category",
+            "category": "EWS",
+            "location_preference": "Delhi or Haryana",
+            "budget": "not_mentioned",
+            "decision_stage": "actively_comparing"
+        },
+        "personality": "involved parent, wants best for son, practical about JEE Advanced chances",
+        "opening_message": "Apne bete ke liye dekh raha hoon main. B.Tech CSE. Uske 94 percentile bane hain JEE mein. Delhi bhi dekh sakte hain, Haryana bhi.",
+        "objectives": ["Understand realistic CS options at 94 percentile", "Know about JEE counselling timeline", "Find good private alternatives"],
+        "likely_objections": ["wants_government"]
+    },
+    {
+        "id": "persona_10",
+        "name": "Om Prakash",
+        "description": "CBSE student, wants B.Tech CSE at KIIT, hasn't applied anywhere yet",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Tech CSE",
+            "exam_scores": "12th done, results pending (CBSE)",
+            "category": "not_mentioned",
+            "location_preference": "Bhubaneswar",
+            "budget": "17-22 lakhs (with/without hostel)",
+            "decision_stage": "just_exploring"
+        },
+        "personality": "procrastinator, hasn't filled forms yet, needs push to act",
+        "opening_message": "Ji ji. KIIT Bhubaneswar ke baare mein jaanna tha. B.Tech CSE ke liye. Nahi abhi tak koi form nahi bhara.",
+        "objectives": ["Understand KIITEE entrance exam process", "Know fees with and without hostel", "Get help with form filling"],
+        "likely_objections": []
+    },
+    {
+        "id": "persona_11",
+        "name": "Disinterested Student",
+        "description": "Not really interested, gives short answers, needs re-engagement",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Tech",
+            "exam_scores": "12th pass",
+            "category": "not_mentioned",
+            "location_preference": "not_mentioned",
+            "budget": "not_mentioned",
+            "decision_stage": "just_exploring"
+        },
+        "personality": "disinterested, gives one-word answers, needs to be drawn out",
+        "opening_message": "Haan. Dekh rahe hain bas.",
+        "objectives": ["Test bot's ability to re-engage a cold lead"],
+        "likely_objections": ["not_interested"]
+    },
+    {
+        "id": "persona_12",
+        "name": "Already Decided Student",
+        "description": "Already got into SRM, checking if there's a better option",
+        "caller_type": "student",
+        "profile": {
+            "course_interest": "B.Tech CSE",
+            "exam_scores": "12th 88%, SRM admission done",
+            "category": "not_mentioned",
+            "location_preference": "South India",
+            "budget": "22-23 lakhs",
+            "decision_stage": "already_applied_elsewhere"
+        },
+        "personality": "confident, already decided, just exploring backup",
+        "opening_message": "SRM mein admission ho gaya hai. Bas ye dekhna tha ki aur koi better option hai kya same range mein?",
+        "objectives": ["Test bot's ability to handle already-decided students", "Compare SRM with alternatives"],
+        "likely_objections": ["already_decided"]
+    },
+]
+
+
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    out_path = OUT / "personas.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(PERSONAS, f, ensure_ascii=False, indent=2)
+    print(f"Generated {len(PERSONAS)} personas → {out_path}")
+
+    for p in PERSONAS:
+        print(f"  {p['id']}: {p['name']} — {p['description'][:60]}")
+
+
+if __name__ == "__main__":
+    main()
