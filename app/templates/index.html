@@ -22,7 +22,7 @@
   <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
     <div>
       <h1 class="text-2xl font-bold tracking-tight">📞 Shiksha Transcript Insights</h1>
-      <p class="text-indigo-200 text-sm mt-0.5">Analysing 100 human counsellor calls to build a smarter voice bot</p>
+      <p class="text-indigo-200 text-sm mt-0.5">Analysing <span id="hdr-call-count">—</span> human counsellor calls to build a smarter voice bot</p>
     </div>
     <div class="flex items-center gap-3">
       <!-- Global counsellor filter — searchable, applies across every section -->
@@ -128,6 +128,7 @@
     <button class="tab-btn" data-tab="objections">🛡️ Objection Handling</button>
     <button class="tab-btn" data-tab="flow">🔄 Call Flow</button>
     <button class="tab-btn" data-tab="explorer">🔍 Transcript Explorer</button>
+    <button class="tab-btn" data-tab="users">👥 Users</button>
     <button class="tab-btn" data-tab="direct-admissions">⚠️ Direct Admissions</button>
     <button class="tab-btn" data-tab="institutes">🏫 Institute USPs</button>
     <button class="tab-btn" data-tab="deepdive">🔬 Deep Dive</button>
@@ -260,7 +261,7 @@
 
   <div class="card">
     <h2 class="text-lg font-bold text-slate-800 mb-2">Recommended Bot Call Flow</h2>
-    <p class="text-sm text-slate-500 mb-4">Based on analysis of 100 human calls, here's the optimal call structure</p>
+    <p class="text-sm text-slate-500 mb-4">Based on analysis of <span class="dyn-call-count">—</span> human calls, here's the optimal call structure</p>
     <div class="grid md:grid-cols-7 gap-2">
       <div class="text-center p-3 bg-indigo-50 rounded-lg">
         <div class="text-2xl mb-1">👋</div>
@@ -387,6 +388,23 @@
           </div>
         </div>
       </div>
+      <!-- Date range row -->
+      <div class="flex flex-wrap items-end gap-3 mt-3 pt-3 border-t border-slate-200">
+        <div>
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Call date from</label>
+          <input id="explorer-date-from" type="date" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Call date to</label>
+          <input id="explorer-date-to" type="date" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+        </div>
+        <button id="explorer-date-clear" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium px-2 py-1.5">Clear dates</button>
+        <span class="text-xs text-slate-400">Filters by call <code>created_on</code> date.</span>
+        <label class="flex items-center gap-2 ml-4 text-sm text-slate-700 cursor-pointer">
+          <input id="explorer-applied-only" type="checkbox" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-300">
+          <span>✅ Applied only <span class="text-xs text-slate-400">(confirmed conversions)</span></span>
+        </label>
+      </div>
       <!-- Active filter tags -->
       <div id="explorer-active-filters" class="flex flex-wrap gap-1 mt-3 hidden"></div>
     </div>
@@ -395,6 +413,7 @@
       <table class="data-table">
         <thead>
           <tr>
+            <th class="cursor-pointer hover:text-indigo-600" data-sort="created_date">Date ⇅</th>
             <th>Counsellor</th>
             <th>Team</th>
             <th>Course</th>
@@ -402,10 +421,88 @@
             <th class="cursor-pointer hover:text-indigo-600" data-sort="total_turns">Turns ⇅</th>
             <th>Stage</th>
             <th>Outcome</th>
+            <th title="Confirmed downstream — user submitted an application after this call">Applied</th>
+            <th>User</th>
             <th>Summary</th>
           </tr>
         </thead>
         <tbody id="explorer-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- TAB: USERS                                                      -->
+<!-- ============================================================== -->
+<section id="tab-users" class="tab-content">
+  <div class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-100 rounded-xl p-6 mb-6">
+    <h2 class="text-xl font-bold text-cyan-900 mb-1">👥 Users (Multi-Call Journeys)</h2>
+    <p class="text-sm text-cyan-700">Group calls by user_id (or mobile when user_id missing). Use this to study how the funnel progresses across multiple touchpoints with the same lead.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+    <div class="card text-center">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value text-cyan-600" id="users-stat-total">-</div>
+    </div>
+    <div class="card text-center">
+      <div class="stat-label">Multi-Call Users</div>
+      <div class="stat-value text-blue-600" id="users-stat-multi">-</div>
+    </div>
+    <div class="card text-center">
+      <div class="stat-label">Avg Calls / User</div>
+      <div class="stat-value text-indigo-600" id="users-stat-avg">-</div>
+    </div>
+    <div class="card text-center">
+      <div class="stat-label">Max Calls (1 User)</div>
+      <div class="stat-value text-purple-600" id="users-stat-max">-</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-800">Users</h3>
+        <p class="text-sm text-slate-500"><span id="users-count">-</span> shown — click a row to expand all transcripts for that user</p>
+      </div>
+      <div class="flex flex-wrap items-end gap-2">
+        <div>
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Application Stage (latest)</label>
+          <select id="users-stage-filter" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
+            <option value="">All stages</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-600 mb-1 block">Min calls</label>
+          <select id="users-mincalls-filter" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
+            <option value="2" selected>2+ (multi-call)</option>
+            <option value="1">1+ (all)</option>
+            <option value="3">3+</option>
+            <option value="5">5+</option>
+          </select>
+        </div>
+        <input id="users-search" type="text" placeholder="Search user_id, mobile, counsellor…"
+               class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-full md:w-64">
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="cursor-pointer hover:text-cyan-600" data-usort="call_count">Calls ⇅</th>
+            <th>User ID</th>
+            <th>Mobile</th>
+            <th class="cursor-pointer hover:text-cyan-600" data-usort="total_duration">Total Duration ⇅</th>
+            <th>Latest Stage</th>
+            <th>Counsellors</th>
+            <th class="cursor-pointer hover:text-cyan-600" data-usort="latest_date">Latest Call ⇅</th>
+            <th>Outcomes</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -468,7 +565,7 @@
 <section id="tab-institutes" class="tab-content">
   <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-xl p-6 mb-6">
     <h2 class="text-xl font-bold text-emerald-900 mb-1">🏫 Institute USP Knowledge Base</h2>
-    <p class="text-sm text-emerald-700">Extracted from 100 counsellor calls — every pitch point, fee detail, and placement claim counsellors use when recommending colleges. Grouped by institute for your voice bot's knowledge base.</p>
+    <p class="text-sm text-emerald-700">Extracted from <span class="dyn-call-count">—</span> counsellor calls — every pitch point, fee detail, and placement claim counsellors use when recommending colleges. Grouped by institute for your voice bot's knowledge base.</p>
   </div>
 
   <!-- Stats row -->
@@ -553,7 +650,7 @@
 <section id="tab-playbook" class="tab-content">
   <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-6 mb-6">
     <h2 class="text-xl font-bold text-indigo-900 mb-1">🤖 Voice Bot Playbook</h2>
-    <p class="text-sm text-indigo-700">Auto-generated recommendations from analysing 100 human counsellor calls. Use these insights to configure your voice bot's conversation flow, response templates, and decision logic.</p>
+    <p class="text-sm text-indigo-700">Auto-generated recommendations from analysing <span class="dyn-call-count">—</span> human counsellor calls. Use these insights to configure your voice bot's conversation flow, response templates, and decision logic.</p>
   </div>
 
   <div class="grid md:grid-cols-2 gap-6">

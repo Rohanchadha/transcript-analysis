@@ -333,7 +333,7 @@ def main():
             raw_entry = {
                 "id": tid,
                 "filename": transcript["filename"],
-                "counsellor": transcript.get("metadata", {}).get("counsellor_name", "Unknown"),
+                "counsellor": (transcript.get("metadata") or {}).get("counsellor_name", "Unknown"),
                 "institutes": result.get("institutes", []),
             }
             raw_results.append(raw_entry)

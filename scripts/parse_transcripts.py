@@ -10,10 +10,19 @@ import re
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-TRANSCRIPT_DIR = ROOT_DIR / "transcripts"
-CSV_PATH = ROOT_DIR / "counsellor-calls-all.csv"
 OUTPUT_DIR = ROOT_DIR / "data"
 OUTPUT_PATH = OUTPUT_DIR / "parsed_transcripts.json"
+
+# List of (transcript_dir, csv_path) batches to process.
+# Add new batches at the end. Existing batches MUST stay so old data is preserved.
+# Filename collisions are resolved by first-occurrence wins (earlier batches take priority).
+BATCHES = [
+    (ROOT_DIR / "transcripts", ROOT_DIR / "counsellor-calls-all.csv"),
+    (
+        ROOT_DIR / "batches" / "batch-may-14th-may",
+        ROOT_DIR / "batches" / "batch-may-14th-may" / "calls for transcription 13 May.csv",
+    ),
+]
 
 # Pattern: [MM:SS - MM:SS] Speaker: text
 DIALOGUE_PATTERN = re.compile(
@@ -87,16 +96,28 @@ def parse_html_transcript(filepath: Path) -> dict:
     }
 
 
-def load_csv_metadata() -> dict:
-    """Load CSV and create lookup by transcript filename."""
+def load_csv_metadata(csv_path: Path) -> dict:
+    """Load a single CSV and create lookup by transcript filename.
+
+    Indexes each row under multiple keys to handle filename variants:
+      - raw basename + ".html"  (e.g. "1777566100779audio_X.mp3.html")
+      - basename with leading 10-16 digit timestamp prefix stripped + ".html"
+        (e.g. "audio_X.mp3.html")
+    """
     metadata = {}
-    with open(CSV_PATH, "r", encoding="utf-8") as f:
+    if not csv_path.exists():
+        print(f"  WARNING: CSV not found: {csv_path}")
+        return metadata
+    with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Transcript filename = basename of file_url + ".html"
             file_url = row.get("file_url", "")
-            transcript_filename = os.path.basename(file_url) + ".html"
-            metadata[transcript_filename] = {
+            base = os.path.basename(file_url)
+            try:
+                duration = float(row.get("duration", 0) or 0)
+            except (TypeError, ValueError):
+                duration = 0.0
+            row_meta = {
                 "counsellor_id": row.get("counsellor_id", ""),
                 "counsellor_name": row.get("counsellor_name", ""),
                 "team_id": row.get("team_id", ""),
@@ -104,65 +125,97 @@ def load_csv_metadata() -> dict:
                 "user_id": row.get("user_id", ""),
                 "mobile_number": row.get("mobile_number", ""),
                 "file_name": row.get("file_name", ""),
-                "duration": float(row.get("duration", 0)),
+                "duration": duration,
                 "file_creation_date": row.get("file_creation_date", ""),
                 "stage_id": row.get("stageId", ""),
                 "stage_name": row.get("stage_name", ""),
                 "created_on": row.get("created_on", ""),
                 "added_on": row.get("addedOn", ""),
+                "_source_csv": csv_path.name,
+                "_source_file_url": file_url,
             }
+            keys = {base + ".html"}
+            # Try stripping each possible Shiksha timestamp prefix length (10-16 digits).
+            # Greedy regex would over-consume when the underlying filename also starts
+            # with digits (e.g. mobile-prefixed recordings like "0091...").
+            m = re.match(r"^(\d{10,16})", base)
+            if m:
+                run = m.group(1)
+                for n in range(10, len(run) + 1):
+                    stripped = base[n:]
+                    if stripped:
+                        keys.add(stripped + ".html")
+            for k in keys:
+                # First occurrence wins (don't overwrite a more specific match)
+                if k not in metadata:
+                    metadata[k] = row_meta
     return metadata
 
 
 def main():
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    # Load CSV metadata
-    print("Loading CSV metadata...")
-    csv_metadata = load_csv_metadata()
-    print(f"  Found {len(csv_metadata)} rows in CSV")
-
-    # Parse all transcripts
-    html_files = sorted(TRANSCRIPT_DIR.glob("*.html"))
-    print(f"Found {len(html_files)} HTML transcript files")
-
     results = []
-    matched = 0
-    unmatched = []
+    seen_ids = set()
+    total_matched = 0
+    total_unmatched = []
 
-    for filepath in html_files:
-        parsed = parse_html_transcript(filepath)
+    for batch_idx, (transcript_dir, csv_path) in enumerate(BATCHES, start=1):
+        print(f"\n=== Batch {batch_idx}: {transcript_dir.name} ===")
 
-        # Link metadata
-        if filepath.name in csv_metadata:
-            parsed["metadata"] = csv_metadata[filepath.name]
-            matched += 1
-        else:
-            parsed["metadata"] = None
-            unmatched.append(filepath.name)
+        if not transcript_dir.exists():
+            print(f"  WARNING: transcript dir missing, skipping: {transcript_dir}")
+            continue
 
-        # Assign an ID
-        parsed["id"] = filepath.stem  # filename without .html
-        results.append(parsed)
+        # Load CSV metadata for this batch
+        print(f"  Loading CSV: {csv_path.name}")
+        csv_metadata = load_csv_metadata(csv_path)
+        print(f"    {len(csv_metadata)} rows in CSV")
 
-    print(f"\nResults:")
+        html_files = sorted(transcript_dir.glob("*.html"))
+        print(f"  Found {len(html_files)} HTML files")
+
+        batch_added = 0
+        batch_skipped_dupes = 0
+        for filepath in html_files:
+            tid = filepath.stem
+            if tid in seen_ids:
+                batch_skipped_dupes += 1
+                continue
+
+            parsed = parse_html_transcript(filepath)
+            if filepath.name in csv_metadata:
+                parsed["metadata"] = csv_metadata[filepath.name]
+                total_matched += 1
+            else:
+                parsed["metadata"] = None
+                total_unmatched.append(filepath.name)
+
+            parsed["id"] = tid
+            parsed["_batch"] = transcript_dir.name
+            results.append(parsed)
+            seen_ids.add(tid)
+            batch_added += 1
+
+        print(f"  Added: {batch_added}, skipped (dupe filename across batches): {batch_skipped_dupes}")
+
+    print(f"\n=== Summary ===")
     print(f"  Total parsed: {len(results)}")
-    print(f"  Matched with CSV: {matched}")
-    print(f"  Unmatched: {len(unmatched)}")
-    if unmatched:
-        for uf in unmatched[:10]:
+    print(f"  Matched with CSV: {total_matched}")
+    print(f"  Unmatched: {len(total_unmatched)}")
+    if total_unmatched:
+        for uf in total_unmatched[:10]:
             print(f"    - {uf}")
-        if len(unmatched) > 10:
-            print(f"    ... and {len(unmatched) - 10} more")
+        if len(total_unmatched) > 10:
+            print(f"    ... and {len(total_unmatched) - 10} more")
 
-    # Save
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
 
     print(f"\nSaved to {OUTPUT_PATH}")
-    print(f"Sample stats from first transcript:")
     if results:
         s = results[0]["stats"]
+        print(f"Sample stats from first transcript:")
         print(f"  Turns: {s['total_turns']}, Words: {s['total_words']}, Talk ratio: {s['talk_ratio']}")
 
 
