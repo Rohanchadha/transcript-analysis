@@ -388,7 +388,7 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
             for kw in call_keywords:
                 keyword_counter[kw] += 1
 
-            meta = r.get("metadata", {})
+            meta = r.get("metadata") or {}
             entry = {
                 "id": r["id"],
                 "counsellor": meta.get("counsellor_name", "Unknown"),
@@ -434,14 +434,28 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
         for gr in store["deep_dive"].get("gender_raw", []):
             gender_lookup[gr["id"]] = gr.get("gender", {}).get("student_gender", "unclear")
 
+    # Batches whose users are confirmed to have applied (downstream conversion known)
+    APPLIED_BATCHES = {"batch-may-14th-may"}
+    # _batch lives on parsed_transcripts (not analysis_results); build id -> batch lookup
+    batch_by_id = {t["id"]: t.get("_batch") for t in store.get("transcripts", []) if t.get("id")}
+
     call_list = []
     for r in all_records:
+        m = r.get("metadata") or {}
+        # created_on looks like "2026-04-30 21:51:42"; keep date prefix for filtering
+        created_full = m.get("created_on", "") or ""
+        created_date = created_full[:10] if len(created_full) >= 10 else ""
         entry = {
             "id": r["id"],
-            "counsellor": r["metadata"]["counsellor_name"] if r.get("metadata") else "Unknown",
-            "team": r["metadata"]["team_name"] if r.get("metadata") else "Unknown",
-            "duration": r["metadata"]["duration"] if r.get("metadata") else 0,
-            "stage": r["metadata"]["stage_name"] if r.get("metadata") else "Unknown",
+            "counsellor": m.get("counsellor_name") or "Unknown",
+            "team": m.get("team_name") or "Unknown",
+            "duration": m.get("duration") or 0,
+            "stage": m.get("stage_name") or "Unknown",
+            "user_id": str(m.get("user_id") or ""),
+            "mobile": str(m.get("mobile_number") or ""),
+            "created_on": created_full,
+            "created_date": created_date,
+            "applied": batch_by_id.get(r["id"]) in APPLIED_BATCHES,
             "total_turns": r.get("stats", {}).get("total_turns", 0),
             "counsellor_words": r.get("stats", {}).get("counsellor_words", 0),
             "user_words": r.get("stats", {}).get("user_words", 0),
@@ -461,6 +475,75 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
                          summary="Not analyzed", buckets=[], tactics_used=[], caller_type="unknown", colleges=[])
         call_list.append(entry)
     a["call_list"] = call_list
+
+    # ---- Users aggregation: group calls by user_id (or mobile fallback) ----
+    users_map: dict = {}
+    for c in call_list:
+        # Prefer user_id; fall back to mobile so anonymous calls still group
+        key = c.get("user_id") or ("mob:" + c["mobile"] if c.get("mobile") else "")
+        if not key:
+            continue
+        u = users_map.setdefault(key, {
+            "user_id": c.get("user_id") or "",
+            "mobile": c.get("mobile") or "",
+            "calls": [],
+            "call_ids": [],
+            "total_duration": 0.0,
+            "stages": set(),
+            "counsellors": set(),
+            "teams": set(),
+            "courses": set(),
+            "outcomes": set(),
+            "latest_date": "",
+            "earliest_date": "",
+        })
+        u["calls"].append(c)
+        u["call_ids"].append(c["id"])
+        try:
+            u["total_duration"] += float(c.get("duration") or 0)
+        except (TypeError, ValueError):
+            pass
+        if c.get("stage") and c["stage"] != "Unknown":
+            u["stages"].add(c["stage"])
+        if c.get("counsellor") and c["counsellor"] != "Unknown":
+            u["counsellors"].add(c["counsellor"])
+        if c.get("team") and c["team"] != "Unknown":
+            u["teams"].add(c["team"])
+        if c.get("course") and c["course"] not in ("N/A", "not_mentioned", ""):
+            u["courses"].add(c["course"])
+        if c.get("outcome"):
+            u["outcomes"].add(c["outcome"])
+        d = c.get("created_date") or ""
+        if d:
+            if not u["latest_date"] or d > u["latest_date"]:
+                u["latest_date"] = d
+            if not u["earliest_date"] or d < u["earliest_date"]:
+                u["earliest_date"] = d
+
+    users_list = []
+    for u in users_map.values():
+        # Latest stage = stage of the call with the most recent created_on (proxy for current funnel position)
+        sorted_calls = sorted(u["calls"], key=lambda x: x.get("created_on", ""), reverse=True)
+        latest_stage = sorted_calls[0]["stage"] if sorted_calls else "Unknown"
+        users_list.append({
+            "user_id": u["user_id"],
+            "mobile": u["mobile"],
+            "call_count": len(u["calls"]),
+            "total_duration": round(u["total_duration"], 2),
+            "stages": sorted(u["stages"]),
+            "latest_stage": latest_stage,
+            "counsellors": sorted(u["counsellors"]),
+            "teams": sorted(u["teams"]),
+            "courses": sorted(u["courses"]),
+            "outcomes": sorted(u["outcomes"]),
+            "latest_date": u["latest_date"],
+            "earliest_date": u["earliest_date"],
+            "call_ids": u["call_ids"],
+        })
+    # Sort: most calls first, then most recent
+    users_list.sort(key=lambda x: (-x["call_count"], x["latest_date"]), reverse=False)
+    users_list.sort(key=lambda x: (x["call_count"], x["latest_date"]), reverse=True)
+    a["users"] = users_list
 
     # ---- Attach institute USPs (optionally filtered by counsellor) --------
     usps = store.get("institute_usps", {})
@@ -641,6 +724,11 @@ async def api_colleges():
 @app.get("/api/calls")
 async def api_calls():
     return store["agg"].get("call_list", [])
+
+
+@app.get("/api/users")
+async def api_users():
+    return store["agg"].get("users", [])
 
 
 @app.get("/api/calls/{call_id:path}")

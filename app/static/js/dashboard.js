@@ -25,8 +25,37 @@ const fmt = n => typeof n === 'number' ? n.toLocaleString() : n;
 const pct = (n, t) => t ? Math.round(n / t * 100) : 0;
 const mins = s => `${Math.floor(s/60)}m ${Math.round(s%60)}s`;
 
+// Format "2026-04-30 21:51:42" -> "30 Apr 2026, 9:51 PM". Falls back to original string.
+const fmtDateTime = (s) => {
+  if (!s || typeof s !== 'string') return '';
+  // Treat as local time (server already returns IST-style "YYYY-MM-DD HH:MM:SS")
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!m) return s;
+  const [, Y, Mo, D, hh, mm] = m;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let out = `${parseInt(D)} ${months[parseInt(Mo)-1]} ${Y}`;
+  if (hh != null) {
+    let H = parseInt(hh);
+    const ampm = H >= 12 ? 'PM' : 'AM';
+    H = H % 12 || 12;
+    out += `, ${H}:${mm} ${ampm}`;
+  }
+  return out;
+};
+const fmtTimeOnly = (s) => {
+  const dt = fmtDateTime(s);
+  const ix = dt.indexOf(', ');
+  return ix >= 0 ? dt.slice(ix + 2) : '';
+};
+
 /* ---- tab switching ---- */
 function initTabs() {
+  // Inject the actual analysed-call count wherever the page expects it.
+  const totalCalls = D.total_calls || (D.call_list ? D.call_list.length : 0) || 0;
+  const hdr = document.getElementById('hdr-call-count');
+  if (hdr) hdr.textContent = fmt(totalCalls);
+  document.querySelectorAll('.dyn-call-count').forEach(el => { el.textContent = fmt(totalCalls); });
+
   $$('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       $$('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -41,6 +70,7 @@ function initTabs() {
       if (target === 'objections' && !window._objectionsInit) { initObjections(); window._objectionsInit = true; }
       if (target === 'flow' && !window._flowInit) { initFlow(); window._flowInit = true; }
       if (target === 'explorer' && !window._explorerInit) { initExplorer(); window._explorerInit = true; }
+      if (target === 'users' && !window._usersInit) { initUsers(); window._usersInit = true; }
       if (target === 'direct-admissions' && !window._daInit) { initDirectAdmissions(); window._daInit = true; }
       if (target === 'institutes' && !window._institutesInit) { initInstitutes(); window._institutesInit = true; }
       if (target === 'deepdive' && !window._deepdiveInit) { initDeepDive(); window._deepdiveInit = true; }
@@ -462,6 +492,20 @@ function initExplorer() {
   // ── Search ──
   $('#explorer-search').addEventListener('input', applyExplorerFilters);
 
+  // ── Date range filter ──
+  const dateFrom = $('#explorer-date-from');
+  const dateTo   = $('#explorer-date-to');
+  if (dateFrom) dateFrom.addEventListener('change', applyExplorerFilters);
+  if (dateTo)   dateTo.addEventListener('change', applyExplorerFilters);
+  const dateClear = $('#explorer-date-clear');
+  if (dateClear) dateClear.addEventListener('click', () => {
+    if (dateFrom) dateFrom.value = '';
+    if (dateTo)   dateTo.value = '';
+    applyExplorerFilters();
+  });
+  const appliedOnly = $('#explorer-applied-only');
+  if (appliedOnly) appliedOnly.addEventListener('change', applyExplorerFilters);
+
   // ── Main filter + sort function ──
   function applyExplorerFilters() {
     let filtered = explorerData;
@@ -486,15 +530,41 @@ function initExplorer() {
         (c.team || '').toLowerCase().includes(q) ||
         (c.stage || '').toLowerCase().includes(q) ||
         (c.outcome || '').toLowerCase().includes(q) ||
+        (c.user_id || '').toLowerCase().includes(q) ||
+        (c.mobile || '').toLowerCase().includes(q) ||
         (c.buckets || []).join(' ').toLowerCase().includes(q) ||
         (c.colleges || []).join(' ').toLowerCase().includes(q)
       );
     }
 
+    // Date range filter (uses created_date YYYY-MM-DD)
+    const fromVal = ($('#explorer-date-from')?.value || '').trim();
+    const toVal   = ($('#explorer-date-to')?.value   || '').trim();
+    if (fromVal || toVal) {
+      filtered = filtered.filter(c => {
+        const d = c.created_date || '';
+        if (!d) return false;
+        if (fromVal && d < fromVal) return false;
+        if (toVal   && d > toVal)   return false;
+        return true;
+      });
+    }
+
+    // Applied-only filter
+    if ($('#explorer-applied-only')?.checked) {
+      filtered = filtered.filter(c => c.applied);
+    }
+
     // Sort
     if (sortField) {
       filtered = [...filtered].sort((a, b) => {
-        const va = a[sortField] || 0, vb = b[sortField] || 0;
+        const va = a[sortField] ?? '', vb = b[sortField] ?? '';
+        // String sort for date / text fields, numeric for numbers
+        if (typeof va === 'string' || typeof vb === 'string') {
+          if (va < vb) return sortDir === 'asc' ? -1 : 1;
+          if (va > vb) return sortDir === 'asc' ? 1 : -1;
+          return 0;
+        }
         return sortDir === 'asc' ? va - vb : vb - va;
       });
     }
@@ -539,10 +609,19 @@ function renderExplorerTable(data) {
                          c.outcome.includes('interested') ? 'badge-indigo' :
                          c.outcome.includes('callback') ? 'badge-amber' : 'badge-slate';
 
+    // "Other calls" pill if this user has more transcripts
+    const userKey = c.user_id || c.mobile || '';
+    const sameUser = userKey ? explorerData.filter(o => (o.user_id || o.mobile || '') === userKey && o.id !== c.id) : [];
+    const userBadge = sameUser.length
+      ? `<span class="badge badge-cyan" title="This user has ${sameUser.length} other transcripts">+${sameUser.length} more</span>`
+      : '';
+    const userLabel = c.user_id ? `${h(c.user_id)}` : (c.mobile ? `📞 ${h(c.mobile)}` : '—');
+
     const tr = document.createElement('tr');
     tr.className = 'cursor-pointer';
     tr.onclick = () => openTranscript(c.id);
     tr.innerHTML = `
+      <td class="text-xs whitespace-nowrap">${h(fmtDateTime(c.created_on) || c.created_date || '—')}</td>
       <td class="font-medium">${h(c.counsellor)}</td>
       <td class="text-xs">${h(c.team)}</td>
       <td>${h(c.course)}</td>
@@ -550,6 +629,8 @@ function renderExplorerTable(data) {
       <td>${c.total_turns}</td>
       <td><span class="badge badge-slate">${h(c.stage)}</span></td>
       <td><span class="badge ${outcomeBadge}">${h(c.outcome.replace(/_/g,' '))}</span></td>
+      <td class="text-center">${c.applied ? '<span class="badge badge-green" title="Confirmed: this user submitted an application after the call">✅ Applied</span>' : '<span class="text-slate-300 text-xs">—</span>'}</td>
+      <td class="text-xs whitespace-nowrap">${userLabel} ${userBadge}</td>
       <td class="text-xs text-slate-500 max-w-xs truncate">${h(c.summary)}</td>`;
     tbody.appendChild(tr);
   });
@@ -603,12 +684,51 @@ async function openTranscript(callId) {
 
     // Meta header
     if (meta) {
+      // Identifier banner: date/time + call id
+      const dateLabel = fmtDateTime(meta.created_on || '') || '—';
+      const callListAll = (D && D.call_list) || [];
+      const thisCall = callListAll.find(x => x.id === callId);
+      const appliedBadge = thisCall && thisCall.applied
+        ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-xs font-semibold" title="Confirmed: this user submitted an application after the call">✅ Applied</span>'
+        : '';
+      html += `<div class="mb-3 px-3 py-2 rounded-lg bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2">
+        <div class="text-sm flex items-center gap-3"><span class="text-slate-300">📞 Call</span><span class="font-semibold">${h(dateLabel)}</span>${appliedBadge}</div>
+        <div class="text-xs text-slate-300 font-mono">id: ${h(callId)}</div>
+      </div>`;
+
       html += `<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <div class="card-sm bg-slate-50"><div class="stat-label">Counsellor</div><div class="text-sm font-semibold">${h(meta.counsellor_name)}</div></div>
         <div class="card-sm bg-slate-50"><div class="stat-label">Duration</div><div class="text-sm font-semibold">${mins(meta.duration)}</div></div>
         <div class="card-sm bg-slate-50"><div class="stat-label">Stage</div><div class="text-sm font-semibold">${h(meta.stage_name)}</div></div>
         <div class="card-sm bg-slate-50"><div class="stat-label">Team</div><div class="text-sm font-semibold">${h(meta.team_name)}</div></div>
       </div>`;
+
+      // —— Other calls from same user (collapsible, sorted ascending) ——
+      const userKey = (meta.user_id ? String(meta.user_id) : '') || (meta.mobile_number ? String(meta.mobile_number) : '');
+      const callList = (D && D.call_list) || [];
+      const sameUser = userKey ? callList.filter(c => {
+        const k = (meta.user_id ? c.user_id : c.mobile);
+        return k && String(k) === userKey && c.id !== callId;
+      }) : [];
+      if (sameUser.length) {
+        // Ascending by created_on (oldest first), so the journey reads top-to-bottom in time order
+        sameUser.sort((x, y) => (x.created_on || '').localeCompare(y.created_on || ''));
+        html += `<details class="mb-4 rounded-lg border border-cyan-100 bg-cyan-50">
+          <summary class="cursor-pointer select-none px-3 py-2 flex items-center justify-between">
+            <span class="font-semibold text-cyan-900">👥 ${sameUser.length} other call${sameUser.length>1?'s':''} from this user</span>
+            <span class="text-xs text-cyan-700">${meta.user_id ? 'user_id: '+h(meta.user_id) : 'mobile: '+h(meta.mobile_number||'')}</span>
+          </summary>
+          <div class="flex flex-col gap-1 px-3 pb-3 pt-1">
+            ${sameUser.map(c => `
+              <button class="text-left text-sm px-2 py-1.5 rounded hover:bg-white border border-cyan-100 cursor-pointer related-call-link" data-call-id="${h(c.id)}">
+                <span class="text-xs text-cyan-700 font-mono mr-2 whitespace-nowrap">${h(fmtDateTime(c.created_on) || c.created_date || '—')}</span>
+                <span class="badge badge-slate mr-2">${h(c.stage)}</span>
+                <span class="text-slate-700">${mins(c.duration)} · ${h(c.counsellor)}</span>
+                <span class="text-xs text-slate-500 ml-2">${h((c.summary || '').slice(0,80))}${(c.summary||'').length>80?'…':''}</span>
+              </button>`).join('')}
+          </div>
+        </details>`;
+      }
     }
 
     // Analysis summary
@@ -700,6 +820,15 @@ async function openTranscript(callId) {
     }
 
     body.innerHTML = html;
+
+    // Wire up related-call links to swap modal content
+    body.querySelectorAll('.related-call-link').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.callId;
+        if (id) openTranscript(id);
+      });
+    });
 
     // Wire up clickable pills to navigate to transcript
     if (an && turns.length) {
@@ -1459,6 +1588,9 @@ function chartBar(id, data, title) {
 function chartHBar(id, labels, values, title) {
   const canvas = document.getElementById(id);
   if (!canvas) return;
+  const maxVal = Math.max(0, ...values);
+  // Suggested max gives the datalabels at end-of-bar room to render.
+  const suggestedMax = maxVal > 0 ? Math.ceil(maxVal * 1.12) : 1;
   new Chart(canvas, {
     type: 'bar',
     data: {
@@ -1470,14 +1602,18 @@ function chartHBar(id, labels, values, title) {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
+      layout: { padding: { right: 40, left: 4 } },
       plugins: {
         title: { display: true, text: title, font: { size: 14, weight: '600' }, color: '#334155' },
         legend: { display: false },
-        datalabels: { anchor: 'end', align: 'end', font: { size: 11, weight: '600' }, color: '#475569' }
+        datalabels: {
+          anchor: 'end', align: 'end', clamp: true, clip: false,
+          font: { size: 11, weight: '600' }, color: '#475569'
+        }
       },
       scales: {
-        x: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
-        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        x: { beginAtZero: true, suggestedMax, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 }, autoSkip: false } }
       }
     }
   });
@@ -1562,6 +1698,158 @@ function toggleExamples(uid, type, idx) {
       `<div id="${uid}-top-collapse" class="mb-2">${collapseBtn}</div>`);
     toggleWrap.dataset.expanded = '1';
   }
+}
+
+/* ==================================================================== */
+/*  USERS TAB                                                            */
+/* ==================================================================== */
+let usersData = [];
+let usersExpanded = new Set();
+
+function initUsers() {
+  usersData = (D.users || []).slice();
+
+  // Top stats
+  const total = usersData.length;
+  const multi = usersData.filter(u => u.call_count >= 2).length;
+  const totalCalls = usersData.reduce((s, u) => s + u.call_count, 0);
+  const maxCalls = usersData.reduce((m, u) => Math.max(m, u.call_count), 0);
+  $('#users-stat-total').textContent = fmt(total);
+  $('#users-stat-multi').textContent = fmt(multi);
+  $('#users-stat-avg').textContent = total ? (totalCalls / total).toFixed(1) : '0';
+  $('#users-stat-max').textContent = fmt(maxCalls);
+
+  // Stage filter dropdown — populate from all stages seen
+  const stageSet = new Set();
+  usersData.forEach(u => (u.stages || []).forEach(s => stageSet.add(s)));
+  const stageSel = $('#users-stage-filter');
+  [...stageSet].sort().forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    stageSel.appendChild(opt);
+  });
+
+  // Sort state (default: most calls desc)
+  let sortField = 'call_count', sortDir = 'desc';
+  document.querySelectorAll('th[data-usort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const f = th.dataset.usort;
+      if (sortField === f) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else { sortField = f; sortDir = 'desc'; }
+      render();
+    });
+  });
+
+  $('#users-stage-filter').addEventListener('change', render);
+  $('#users-mincalls-filter').addEventListener('change', render);
+  $('#users-search').addEventListener('input', render);
+
+  function render() {
+    const stage = $('#users-stage-filter').value;
+    const minCalls = parseInt($('#users-mincalls-filter').value) || 1;
+    const q = ($('#users-search').value || '').toLowerCase();
+
+    let filtered = usersData.filter(u => {
+      if (u.call_count < minCalls) return false;
+      if (stage) {
+        // Match latest_stage OR any stage in the user's history
+        if (u.latest_stage !== stage && !(u.stages || []).includes(stage)) return false;
+      }
+      if (q) {
+        const blob = [
+          u.user_id, u.mobile, ...(u.counsellors || []), ...(u.courses || []),
+          ...(u.outcomes || []), u.latest_stage,
+        ].join(' ').toLowerCase();
+        if (!blob.includes(q)) return false;
+      }
+      return true;
+    });
+
+    // Sort
+    filtered = [...filtered].sort((a, b) => {
+      const va = a[sortField] ?? '', vb = b[sortField] ?? '';
+      if (typeof va === 'number' && typeof vb === 'number') {
+        return sortDir === 'asc' ? va - vb : vb - va;
+      }
+      const sa = String(va), sb = String(vb);
+      if (sa < sb) return sortDir === 'asc' ? -1 : 1;
+      if (sa > sb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    $('#users-count').textContent = `${filtered.length} users`;
+
+    const tbody = $('#users-tbody');
+    tbody.innerHTML = '';
+
+    // Build a quick lookup of call objects by id from D.call_list
+    const callMap = {};
+    (D.call_list || []).forEach(c => { callMap[c.id] = c; });
+
+    filtered.forEach(u => {
+      const key = u.user_id || ('mob:' + u.mobile);
+      const isOpen = usersExpanded.has(key);
+
+      const stagesPills = (u.stages || []).slice(0, 4).map(s =>
+        `<span class="badge badge-slate text-xs">${h(s)}</span>`).join(' ');
+      const stageBadge = u.latest_stage && u.latest_stage !== 'Unknown'
+        ? `<span class="badge badge-cyan">${h(u.latest_stage)}</span>` : '<span class="text-slate-400 text-xs">—</span>';
+
+      const tr = document.createElement('tr');
+      tr.className = 'cursor-pointer hover:bg-cyan-50';
+      tr.onclick = () => {
+        if (usersExpanded.has(key)) usersExpanded.delete(key);
+        else usersExpanded.add(key);
+        render();
+      };
+      tr.innerHTML = `
+        <td class="font-bold text-cyan-700">${isOpen ? '▼' : '▶'} ${u.call_count}</td>
+        <td class="text-xs font-mono">${h(u.user_id || '—')}</td>
+        <td class="text-xs">${h(u.mobile || '—')}</td>
+        <td>${mins(u.total_duration)}</td>
+        <td>${stageBadge} <div class="mt-1 flex flex-wrap gap-1">${stagesPills}</div></td>
+        <td class="text-xs">${(u.counsellors || []).slice(0,3).map(h).join(', ')}${u.counsellors.length>3?'…':''}</td>
+        <td class="text-xs whitespace-nowrap">${h(u.latest_date || '—')}<div class="text-slate-400">${h(u.earliest_date || '')}</div></td>
+        <td class="text-xs">${(u.outcomes || []).slice(0,2).map(o => `<span class="badge badge-slate">${h(o.replace(/_/g,' '))}</span>`).join(' ')}</td>`;
+      tbody.appendChild(tr);
+
+      if (isOpen) {
+        const detail = document.createElement('tr');
+        detail.className = 'bg-cyan-50/50';
+        const sortedCalls = (u.call_ids || []).map(id => callMap[id]).filter(Boolean)
+          .sort((a, b) => (a.created_on || '').localeCompare(b.created_on || ''));
+        detail.innerHTML = `<td colspan="8" class="p-3">
+          <div class="text-xs font-semibold text-cyan-900 mb-2 uppercase">All ${sortedCalls.length} transcripts (oldest first) — click to open</div>
+          <div class="overflow-x-auto"><table class="data-table">
+            <thead><tr>
+              <th>Date · Time</th><th>Counsellor</th><th>Stage</th><th>Duration</th>
+              <th>Course</th><th>Outcome</th><th>Summary</th>
+            </tr></thead>
+            <tbody>${sortedCalls.map(c => `
+              <tr class="cursor-pointer related-call-row" data-call-id="${h(c.id)}">
+                <td class="text-xs whitespace-nowrap">${h(fmtDateTime(c.created_on) || c.created_date || '—')}</td>
+                <td class="text-xs">${h(c.counsellor)}</td>
+                <td><span class="badge badge-slate">${h(c.stage)}</span></td>
+                <td>${mins(c.duration)}</td>
+                <td class="text-xs">${h(c.course)}</td>
+                <td class="text-xs"><span class="badge badge-indigo">${h((c.outcome||'').replace(/_/g,' '))}</span></td>
+                <td class="text-xs text-slate-600 max-w-md truncate">${h(c.summary || '')}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table></div>
+        </td>`;
+        tbody.appendChild(detail);
+        detail.querySelectorAll('.related-call-row').forEach(row => {
+          row.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openTranscript(row.dataset.callId);
+          });
+        });
+      }
+    });
+  }
+
+  render();
 }
 
 /* ---- Init on load ---- */

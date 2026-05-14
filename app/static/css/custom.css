@@ -93,6 +93,7 @@ body {
 .badge-amber   { background: #fffbeb; color: #92400e; }
 .badge-red     { background: #fef2f2; color: #991b1b; }
 .badge-slate   { background: #f1f5f9; color: #475569; }
+.badge-cyan    { background: #ecfeff; color: #0e7490; }
 
 /* ---- Table ---- */
 .data-table {

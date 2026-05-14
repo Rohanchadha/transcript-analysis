@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Voice-Bot Issue Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="/static/css/style.css?v=2026050502" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="loading">loading…</div>
+<header>
+  <h1>Voice-Bot Issue Dashboard</h1>
+  <div class="header-actions">
+    <button id="reload-btn" title="Reload data from disk">↻ Reload</button>
+    <a class="btn-link" id="export-link" href="/api/export" download>⬇ Export CSV</a>
+  </div>
+</header>
+
+<nav id="dataset-tabs" class="dataset-tabs"></nav>
+
+<main>
+  <section id="tiles" class="tiles"></section>
+
+  <section class="grid-2">
+    <div class="card">
+      <h2>Issues by category</h2>
+      <canvas id="cat-chart"></canvas>
+    </div>
+    <div class="card">
+      <h2>Severity breakdown</h2>
+      <canvas id="sev-chart"></canvas>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Categories — drill in for examples</h2>
+    <div id="categories"></div>
+  </section>
+
+  <section class="card">
+    <h2>By persona / cohort</h2>
+    <table id="persona-table" class="data-table"></table>
+  </section>
+
+  <section class="card">
+    <h2>Latency</h2>
+    <div id="latency-tiles" class="tiles" style="margin-bottom:14px;"></div>
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:13px;margin:0 0 6px 0;color:#57606a;">Per-call avg latency &mdash; distribution across calls</h3>
+        <canvas id="lat-call-chart"></canvas>
+      </div>
+      <div>
+        <h3 style="font-size:13px;margin:0 0 6px 0;color:#57606a;">Per-turn latency &mdash; distribution across all turns / nodes</h3>
+        <canvas id="lat-turn-chart"></canvas>
+      </div>
+    </div>
+    <h3 style="font-size:13px;margin:18px 0 6px 0;color:#57606a;">Latency by node / turn kind</h3>
+    <table id="lat-kind-table" class="data-table"></table>
+    <h3 style="font-size:13px;margin:18px 0 6px 0;color:#57606a;">Outlier calls &mdash; click to inspect</h3>
+    <div id="lat-outlier-meta" class="meta" style="font-size:12px;color:#57606a;margin-bottom:6px;"></div>
+    <table id="lat-outlier-table" class="data-table"></table>
+  </section>
+
+  <section class="card">
+    <h2>Calls</h2>
+    <div class="filters">
+      <label>Category
+        <select id="f-category"><option value="">all</option></select>
+      </label>
+      <label>Severity
+        <select id="f-severity">
+          <option value="">all</option><option>high</option><option>medium</option><option>low</option>
+        </select>
+      </label>
+      <label>Quality
+        <select id="f-quality">
+          <option value="">all</option><option>good</option><option>mediocre</option><option>poor</option>
+        </select>
+      </label>
+      <label>Min issues <input type="number" id="f-min" value="1" min="0" style="width:60px" /></label>
+      <label>Search <input type="text" id="f-search" placeholder="sid / persona / summary" style="width:220px" /></label>
+      <button id="apply-filters">Apply</button>
+    </div>
+    <table id="calls-table" class="data-table"></table>
+    <div class="pager">
+      <button id="pager-prev">← Prev</button>
+      <span id="pager-info">0 of 0</span>
+      <button id="pager-next">Next →</button>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <button class="modal-close" id="modal-close">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="/static/js/app.js?v=2026050503"></script>
+</body>
+</html>

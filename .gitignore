@@ -19,3 +19,11 @@ call_transcripts-excel-100.xlsx
 
 # Temp
 *.tmp
+
+# Local backup snapshots (recoverable from raw transcripts)
+data/backups/
+
+# Virtual environments
+.venv/
+venv/
+
