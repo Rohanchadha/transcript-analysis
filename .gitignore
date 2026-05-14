@@ -16,6 +16,7 @@ Thumbs.db
 
 # Large source files (not needed for dashboard — data/ has the processed results)
 call_transcripts-excel-100.xlsx
+*.xlsx
 
 # Temp
 *.tmp
