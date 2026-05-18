@@ -435,7 +435,7 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
             gender_lookup[gr["id"]] = gr.get("gender", {}).get("student_gender", "unclear")
 
     # Batches whose users are confirmed to have applied (downstream conversion known)
-    APPLIED_BATCHES = {"batch-may-14th-may"}
+    APPLIED_BATCHES = {"batch-may-14th-may", "batch-may-14th-may-2"}
     # _batch lives on parsed_transcripts (not analysis_results); build id -> batch lookup
     batch_by_id = {t["id"]: t.get("_batch") for t in store.get("transcripts", []) if t.get("id")}
 

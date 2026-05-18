@@ -1093,6 +1093,11 @@ function initInstitutes() {
     });
   });
   const catSorted = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+  // Grow the inner wrapper so each bar gets ~26px; the outer card scrolls.
+  const catWrap = document.getElementById('chart-usp-categories-wrap');
+  if (catWrap) {
+    catWrap.style.height = Math.max(400, catSorted.length * 26) + 'px';
+  }
   chartHBar('chart-usp-categories',
     catSorted.map(([c]) => c.replace(/_/g, ' ')),
     catSorted.map(([, v]) => v),
@@ -1149,6 +1154,33 @@ function buildCoursePills() {
     });
     container.appendChild(pill);
   });
+
+  // Collapse pills past INITIAL_VISIBLE; show toggle to expand/collapse.
+  const INITIAL_VISIBLE = 12; // not counting the "All" pill
+  const toggleBtn = document.getElementById('usp-course-pills-toggle');
+  const allPills = Array.from(container.querySelectorAll('.course-pill'));
+  // index 0 is the "All" pill; hide everything past INITIAL_VISIBLE+1
+  if (allPills.length > INITIAL_VISIBLE + 1 && toggleBtn) {
+    const applyCollapsed = () => {
+      allPills.forEach((p, i) => {
+        if (i > INITIAL_VISIBLE) p.style.display = 'none';
+      });
+      toggleBtn.textContent = `Show all (${allPills.length - 1 - INITIAL_VISIBLE} more)`;
+    };
+    const applyExpanded = () => {
+      allPills.forEach(p => { p.style.display = ''; });
+      toggleBtn.textContent = 'Show less';
+    };
+    let expanded = false;
+    applyCollapsed();
+    toggleBtn.classList.remove('hidden');
+    toggleBtn.onclick = () => {
+      expanded = !expanded;
+      if (expanded) applyExpanded(); else applyCollapsed();
+    };
+  } else if (toggleBtn) {
+    toggleBtn.classList.add('hidden');
+  }
 }
 
 function normalizeBaseCourse(course) {
