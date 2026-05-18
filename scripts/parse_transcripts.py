@@ -22,6 +22,19 @@ BATCHES = [
         ROOT_DIR / "batches" / "batch-may-14th-may",
         ROOT_DIR / "batches" / "batch-may-14th-may" / "calls for transcription 13 May.csv",
     ),
+    (
+        ROOT_DIR / "batches" / "batch-may-14th-may-2",
+        # Reuse the master CSV from the first May 14 batch (covers both batches)
+        ROOT_DIR / "batches" / "batch-may-14th-may" / "calls for transcription 13 May.csv",
+    ),
+    (
+        ROOT_DIR / "batches" / "batch-may-14th-may-3",
+        ROOT_DIR / "batches" / "batch-may-14th-may" / "calls for transcription 13 May.csv",
+    ),
+    (
+        ROOT_DIR / "batches" / "batch-may-14th-may-4",
+        ROOT_DIR / "batches" / "batch-may-14th-may" / "calls for transcription 13 May.csv",
+    ),
 ]
 
 # Pattern: [MM:SS - MM:SS] Speaker: text
