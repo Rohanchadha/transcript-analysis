@@ -1,10 +1,12 @@
 /* ======================================================================
    Shiksha Transcript Insights — Dashboard JS
    Uses: Chart.js (loaded via CDN in HTML)
-   Data: window.__DATA__ (injected by server)
+   Data: fetched from /api/bootstrap on load and merged into D.
    ====================================================================== */
 
-const D = window.__DATA__ || {};
+// D is populated by bootstrapData() before initTabs() runs. All sections
+// reference D.xxx so they pick up values once the fetch completes.
+const D = {};
 
 const COLORS = [
   '#4F46E5','#7C3AED','#EC4899','#EF4444','#F97316',
@@ -1884,5 +1886,25 @@ function initUsers() {
   render();
 }
 
-/* ---- Init on load ---- */
-document.addEventListener('DOMContentLoaded', initTabs);
+/* ---- Init on load ----
+   Fetch the aggregate JSON (used to be inlined into the HTML) then
+   merge it into D and run the existing init. The fetch is gzipped server-side. */
+async function bootstrapData() {
+  try {
+    const sel = window.__SELECTED_COUNSELLOR__ || '';
+    const url = sel
+      ? `/api/bootstrap?counsellor=${encodeURIComponent(sel)}`
+      : '/api/bootstrap';
+    const res = await fetch(url, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`bootstrap ${res.status}`);
+    const data = await res.json();
+    Object.assign(D, data);
+  } catch (e) {
+    console.error('Failed to load dashboard data', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await bootstrapData();
+  initTabs();
+});

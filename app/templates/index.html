@@ -712,9 +712,10 @@
 
 <!-- ============================================================== -->
 <!-- DATA + SCRIPTS                                                  -->
+<!-- Aggregate is fetched from /api/bootstrap on load (was inlined). -->
 <!-- ============================================================== -->
 <script>
-  window.__DATA__ = {{ data_json }};
+  window.__SELECTED_COUNSELLOR__ = {{ (selected_counsellor or '') | tojson }};
 </script>
 <script src="/static/js/dashboard.js"></script>
 

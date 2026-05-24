@@ -7,12 +7,13 @@ Usage:
   python -m uvicorn app.main:app --reload
 """
 
+import gzip
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup
@@ -569,6 +570,13 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
         return a
 
     store["agg"] = a
+    # Pre-serialise + gzip the unfiltered aggregate once. /api/bootstrap serves
+    # these bytes directly, so the hot path does zero JSON/gzip work per request.
+    try:
+        raw = json.dumps(a, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        store["agg_gz"] = gzip.compress(raw, compresslevel=6)
+    except Exception:
+        store.pop("agg_gz", None)
     return a
 
 
@@ -659,11 +667,8 @@ async def startup():
 # ---------------------------------------------------------------------------
 @app.get("/")
 async def index(request: Request):
+    """Render the shell only. The big aggregate is fetched separately via /api/bootstrap."""
     selected = (request.query_params.get("counsellor") or "").strip()
-    if selected:
-        agg = aggregate_data(counsellor_filter=selected)
-    else:
-        agg = store["agg"]
 
     # Build the canonical counsellor list (with call counts) from the unfiltered cache.
     counts = store["agg"].get("counsellors") or {}
@@ -676,11 +681,38 @@ async def index(request: Request):
         name="index.html",
         request=request,
         context={
-            "data_json": Markup(_safe(agg)),
             "counsellors": counsellor_list,
             "selected_counsellor": selected,
         },
     )
+
+
+@app.get("/api/bootstrap")
+async def api_bootstrap(request: Request):
+    """Return the full aggregate that used to be inlined into the HTML.
+
+    Honors the same ?counsellor= filter as the page.
+    For the no-filter (default) case we serve a pre-gzipped byte cache so
+    repeat hits do zero JSON serialisation and zero gzip work.
+    """
+    selected = (request.query_params.get("counsellor") or "").strip()
+
+    if not selected:
+        cached = store.get("agg_gz")
+        if cached:
+            return Response(
+                content=cached,
+                media_type="application/json",
+                headers={
+                    "Cache-Control": "private, max-age=300",
+                    "Content-Encoding": "gzip",
+                    "Vary": "Accept-Encoding",
+                },
+            )
+        agg = store["agg"]
+    else:
+        agg = aggregate_data(counsellor_filter=selected)
+    return JSONResponse(agg, headers={"Cache-Control": "private, max-age=300"})
 
 
 # ---------------------------------------------------------------------------
