@@ -23,7 +23,19 @@ DATA_DIR = ROOT_DIR / "data"
 APP_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(title="Shiksha Transcript Insights")
-app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
+
+
+class CachedStaticFiles(StaticFiles):
+    """Static files with a 1-day browser cache. Safe for our infrequently-changing
+    JS/CSS. Bump filenames or query-string-version if you need to bust the cache."""
+    async def get_response(self, path, scope):
+        resp = await super().get_response(path, scope)
+        if resp.status_code == 200:
+            resp.headers.setdefault("Cache-Control", "public, max-age=86400")
+        return resp
+
+
+app.mount("/static", CachedStaticFiles(directory=APP_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 
 # ---------------------------------------------------------------------------
@@ -692,27 +704,35 @@ async def api_bootstrap(request: Request):
     """Return the full aggregate that used to be inlined into the HTML.
 
     Honors the same ?counsellor= filter as the page.
-    For the no-filter (default) case we serve a pre-gzipped byte cache so
-    repeat hits do zero JSON serialisation and zero gzip work.
+    Pre-gzipped byte caches per (None | counsellor) so repeat hits do zero
+    JSON serialisation and zero gzip work.
     """
     selected = (request.query_params.get("counsellor") or "").strip()
+    key = selected.lower() or None
+    gz_cache = store.setdefault("agg_gz_by_counsellor", {})
+    cached = store.get("agg_gz") if key is None else gz_cache.get(key)
 
-    if not selected:
-        cached = store.get("agg_gz")
-        if cached:
-            return Response(
-                content=cached,
-                media_type="application/json",
-                headers={
-                    "Cache-Control": "private, max-age=300",
-                    "Content-Encoding": "gzip",
-                    "Vary": "Accept-Encoding",
-                },
-            )
-        agg = store["agg"]
-    else:
-        agg = aggregate_data(counsellor_filter=selected)
-    return JSONResponse(agg, headers={"Cache-Control": "private, max-age=300"})
+    if cached is None:
+        agg = aggregate_data(counsellor_filter=selected) if selected else store["agg"]
+        try:
+            raw = json.dumps(agg, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            cached = gzip.compress(raw, compresslevel=6)
+            if key is None:
+                store["agg_gz"] = cached
+            else:
+                gz_cache[key] = cached
+        except Exception:
+            return JSONResponse(agg, headers={"Cache-Control": "private, max-age=300"})
+
+    return Response(
+        content=cached,
+        media_type="application/json",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "Content-Encoding": "gzip",
+            "Vary": "Accept-Encoding",
+        },
+    )
 
 
 # ---------------------------------------------------------------------------

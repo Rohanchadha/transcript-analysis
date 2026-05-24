@@ -494,6 +494,10 @@ function initExplorer() {
   // ── Search ──
   $('#explorer-search').addEventListener('input', applyExplorerFilters);
 
+  // ── Load more (pagination) ──
+  const loadMoreBtn = $('#explorer-loadmore');
+  if (loadMoreBtn) loadMoreBtn.addEventListener('click', () => appendExplorerRows(50));
+
   // ── Date range filter ──
   const dateFrom = $('#explorer-date-from');
   const dateTo   = $('#explorer-date-to');
@@ -606,14 +610,28 @@ function renderExplorerTable(data) {
   tbody.innerHTML = '';
   $('#explorer-count').textContent = `${data.length} calls`;
 
-  data.forEach(c => {
+  const PAGE = 50;
+  // Stash full data on the tbody so the load-more handler can read it
+  tbody._allRows = data;
+  tbody._shown = 0;
+  appendExplorerRows(PAGE);
+}
+
+function appendExplorerRows(pageSize) {
+  const tbody = $('#explorer-tbody');
+  const data = tbody._allRows || [];
+  const start = tbody._shown || 0;
+  const end = Math.min(start + pageSize, data.length);
+  const explorerAll = (window.explorerData || []);
+
+  const frag = document.createDocumentFragment();
+  for (let i = start; i < end; i++) {
+    const c = data[i];
     const outcomeBadge = c.outcome === 'application_started' ? 'badge-green' :
                          c.outcome.includes('interested') ? 'badge-indigo' :
                          c.outcome.includes('callback') ? 'badge-amber' : 'badge-slate';
-
-    // "Other calls" pill if this user has more transcripts
     const userKey = c.user_id || c.mobile || '';
-    const sameUser = userKey ? explorerData.filter(o => (o.user_id || o.mobile || '') === userKey && o.id !== c.id) : [];
+    const sameUser = userKey ? explorerAll.filter(o => (o.user_id || o.mobile || '') === userKey && o.id !== c.id) : [];
     const userBadge = sameUser.length
       ? `<span class="badge badge-cyan" title="This user has ${sameUser.length} other transcripts">+${sameUser.length} more</span>`
       : '';
@@ -634,8 +652,20 @@ function renderExplorerTable(data) {
       <td class="text-center">${c.applied ? '<span class="badge badge-green" title="Confirmed: this user submitted an application after the call">✅ Applied</span>' : '<span class="text-slate-300 text-xs">—</span>'}</td>
       <td class="text-xs whitespace-nowrap">${userLabel} ${userBadge}</td>
       <td class="text-xs text-slate-500 max-w-xs truncate">${h(c.summary)}</td>`;
-    tbody.appendChild(tr);
-  });
+    frag.appendChild(tr);
+  }
+  tbody.appendChild(frag);
+  tbody._shown = end;
+
+  const wrap = $('#explorer-loadmore-wrap');
+  const remEl = $('#explorer-loadmore-remaining');
+  const remaining = data.length - end;
+  if (remaining > 0) {
+    wrap.classList.remove('hidden');
+    if (remEl) remEl.textContent = `(${remaining} more)`;
+  } else {
+    wrap.classList.add('hidden');
+  }
 }
 
 async function openTranscript(callId) {
@@ -1625,13 +1655,16 @@ function chartHBar(id, labels, values, title) {
   const maxVal = Math.max(0, ...values);
   // Suggested max gives the datalabels at end-of-bar room to render.
   const suggestedMax = maxVal > 0 ? Math.ceil(maxVal * 1.12) : 1;
+  // For very long lists (e.g. USP categories), datalabels become noise and
+  // also cost a lot of render time. Drop them past a threshold.
+  const showDataLabels = labels.length <= 20;
   new Chart(canvas, {
     type: 'bar',
     data: {
       labels,
       datasets: [{ data: values, backgroundColor: COLORS.slice(0, labels.length), borderRadius: 6, barPercentage: 0.7 }]
     },
-    plugins: [ChartDataLabels],
+    plugins: showDataLabels ? [ChartDataLabels] : [],
     options: {
       indexAxis: 'y',
       responsive: true,
@@ -1640,10 +1673,10 @@ function chartHBar(id, labels, values, title) {
       plugins: {
         title: { display: true, text: title, font: { size: 14, weight: '600' }, color: '#334155' },
         legend: { display: false },
-        datalabels: {
+        datalabels: showDataLabels ? {
           anchor: 'end', align: 'end', clamp: true, clip: false,
           font: { size: 11, weight: '600' }, color: '#475569'
-        }
+        } : { display: false }
       },
       scales: {
         x: { beginAtZero: true, suggestedMax, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
