@@ -428,6 +428,11 @@
         </thead>
         <tbody id="explorer-tbody"></tbody>
       </table>
+      <div id="explorer-loadmore-wrap" class="text-center py-4 hidden">
+        <button id="explorer-loadmore" class="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg">
+          Load more <span id="explorer-loadmore-remaining" class="text-slate-500"></span>
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -712,9 +717,10 @@
 
 <!-- ============================================================== -->
 <!-- DATA + SCRIPTS                                                  -->
+<!-- Aggregate is fetched from /api/bootstrap on load (was inlined). -->
 <!-- ============================================================== -->
 <script>
-  window.__DATA__ = {{ data_json }};
+  window.__SELECTED_COUNSELLOR__ = {{ (selected_counsellor or '') | tojson }};
 </script>
 <script src="/static/js/dashboard.js"></script>
 

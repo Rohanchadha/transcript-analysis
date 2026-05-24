@@ -7,12 +7,13 @@ Usage:
   python -m uvicorn app.main:app --reload
 """
 
+import gzip
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup
@@ -22,7 +23,19 @@ DATA_DIR = ROOT_DIR / "data"
 APP_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(title="Shiksha Transcript Insights")
-app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
+
+
+class CachedStaticFiles(StaticFiles):
+    """Static files with a 1-day browser cache. Safe for our infrequently-changing
+    JS/CSS. Bump filenames or query-string-version if you need to bust the cache."""
+    async def get_response(self, path, scope):
+        resp = await super().get_response(path, scope)
+        if resp.status_code == 200:
+            resp.headers.setdefault("Cache-Control", "public, max-age=86400")
+        return resp
+
+
+app.mount("/static", CachedStaticFiles(directory=APP_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 
 # ---------------------------------------------------------------------------
@@ -569,6 +582,13 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
         return a
 
     store["agg"] = a
+    # Pre-serialise + gzip the unfiltered aggregate once. /api/bootstrap serves
+    # these bytes directly, so the hot path does zero JSON/gzip work per request.
+    try:
+        raw = json.dumps(a, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        store["agg_gz"] = gzip.compress(raw, compresslevel=6)
+    except Exception:
+        store.pop("agg_gz", None)
     return a
 
 
@@ -659,11 +679,8 @@ async def startup():
 # ---------------------------------------------------------------------------
 @app.get("/")
 async def index(request: Request):
+    """Render the shell only. The big aggregate is fetched separately via /api/bootstrap."""
     selected = (request.query_params.get("counsellor") or "").strip()
-    if selected:
-        agg = aggregate_data(counsellor_filter=selected)
-    else:
-        agg = store["agg"]
 
     # Build the canonical counsellor list (with call counts) from the unfiltered cache.
     counts = store["agg"].get("counsellors") or {}
@@ -676,9 +693,44 @@ async def index(request: Request):
         name="index.html",
         request=request,
         context={
-            "data_json": Markup(_safe(agg)),
             "counsellors": counsellor_list,
             "selected_counsellor": selected,
+        },
+    )
+
+
+@app.get("/api/bootstrap")
+async def api_bootstrap(request: Request):
+    """Return the full aggregate that used to be inlined into the HTML.
+
+    Honors the same ?counsellor= filter as the page.
+    Pre-gzipped byte caches per (None | counsellor) so repeat hits do zero
+    JSON serialisation and zero gzip work.
+    """
+    selected = (request.query_params.get("counsellor") or "").strip()
+    key = selected.lower() or None
+    gz_cache = store.setdefault("agg_gz_by_counsellor", {})
+    cached = store.get("agg_gz") if key is None else gz_cache.get(key)
+
+    if cached is None:
+        agg = aggregate_data(counsellor_filter=selected) if selected else store["agg"]
+        try:
+            raw = json.dumps(agg, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            cached = gzip.compress(raw, compresslevel=6)
+            if key is None:
+                store["agg_gz"] = cached
+            else:
+                gz_cache[key] = cached
+        except Exception:
+            return JSONResponse(agg, headers={"Cache-Control": "private, max-age=300"})
+
+    return Response(
+        content=cached,
+        media_type="application/json",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "Content-Encoding": "gzip",
+            "Vary": "Accept-Encoding",
         },
     )
 
