@@ -12,8 +12,8 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup
@@ -73,6 +73,13 @@ def load_data():
     if deep_dive_path.exists():
         with open(deep_dive_path, "r", encoding="utf-8") as f:
             store["deep_dive"] = json.load(f)
+
+    misselling_path = DATA_DIR / "misselling_results.json"
+    if misselling_path.exists():
+        with open(misselling_path, "r", encoding="utf-8") as f:
+            store["misselling"] = json.load(f)
+    else:
+        store["misselling"] = []
 
     aggregate_data()
 
@@ -677,6 +684,20 @@ async def startup():
 # ---------------------------------------------------------------------------
 # Pages
 # ---------------------------------------------------------------------------
+@app.get("/voicebot-dashboard")
+async def voicebot_dashboard():
+    """Serve the standalone voice-bot transcript dashboard (single-file HTML).
+    Lazy-served on click; does not affect main dashboard load time."""
+    path = ROOT_DIR / "voicebot" / "bot_query_analysis" / "dashboard_llm.html"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Voice bot dashboard not found")
+    return FileResponse(
+        path,
+        media_type="text/html",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
 @app.get("/")
 async def index(request: Request):
     """Render the shell only. The big aggregate is fetched separately via /api/bootstrap."""
@@ -814,6 +835,150 @@ async def api_institute_usps():
 @app.get("/api/direct-admissions")
 async def api_direct_admissions():
     return store["agg"].get("direct_admissions", {})
+
+
+# ---------------------------------------------------------------------------
+# Misselling
+# ---------------------------------------------------------------------------
+_MISSELLING_CATEGORY_LABELS = {
+    "free_application_nudge": "“Application free hai, apply kar do”",
+    "fake_or_inflated_urgency": "Fake / inflated urgency",
+    "misleading_placement_claims": "Misleading placement claims",
+    "downplaying_government_options": "Downplaying government options",
+    "hiding_or_glossing_over_fees": "Hiding / glossing over fees",
+    "overpromising_admission": "Overpromising admission",
+    "ranking_or_accreditation_spin": "Ranking / accreditation spin",
+    "scholarship_bait": "Scholarship bait",
+    "loan_or_emi_easy_money": "Loan / EMI made too easy",
+    "discouraging_research_or_compare": "Discouraging research / comparison",
+    "irrelevant_course_push": "Irrelevant course push",
+    "pressure_to_share_documents": "Pressure to share documents",
+    "other": "Other",
+}
+
+
+def _aggregate_misselling() -> dict:
+    """Aggregate misselling_results.json into chart-friendly buckets.
+
+    SCOPE (intentional, narrow for v1):
+    Only include the `free_application_nudge` category — the known
+    pattern of counsellors pushing colleges purely because the
+    application fee is zero.
+    """
+    records = store.get("misselling") or []
+    ALLOWED = {"free_application_nudge"}
+
+    # Build counsellor + call lookup from existing analysis metadata when possible
+    analysis_by_id = {r["id"]: r for r in store.get("analysis", [])}
+
+    by_category: dict[str, dict] = {}   # cat -> {count, severity, examples[]}
+    by_severity: dict[str, int] = {}
+    by_counsellor: dict[str, dict] = {}
+    by_college: dict[str, int] = {}
+    flagged_calls: list[dict] = []
+
+    total_scored = 0
+    total_flagged = 0
+
+    for r in records:
+        ms = r.get("misselling") or {}
+        if not isinstance(ms, dict):
+            continue
+        total_scored += 1
+        incidents = ms.get("incidents") or []
+        # Keep only the allowed (in-scope) categories
+        incidents = [i for i in incidents if (i.get("category") or "") in ALLOWED]
+        is_flagged = bool(ms.get("has_misselling")) and incidents
+        if not is_flagged:
+            continue
+        total_flagged += 1
+
+        meta = r.get("metadata") or {}
+        counsellor = meta.get("counsellor_name") or "Unknown"
+        # Date for sorting/filtering
+        an = analysis_by_id.get(r["id"], {})
+        created_on = (an.get("metadata") or {}).get("created_on") or meta.get("created_on") or ""
+
+        # Build a compact per-call summary
+        cats = sorted({i.get("category", "other") for i in incidents})
+        max_sev = "low"
+        order = {"low": 0, "medium": 1, "high": 2}
+        for i in incidents:
+            if order.get(i.get("severity", "low"), 0) > order.get(max_sev, 0):
+                max_sev = i.get("severity", "low")
+
+        flagged_calls.append({
+            "id": r["id"],
+            "counsellor": counsellor,
+            "team": meta.get("team_name", "Unknown"),
+            "created_on": created_on,
+            "duration": meta.get("duration", 0),
+            "categories": cats,
+            "max_severity": max_sev,
+            "incident_count": len(incidents),
+            "overall_notes": ms.get("overall_notes", "") or "",
+        })
+
+        by_counsellor.setdefault(counsellor, {"count": 0, "incidents": 0})
+        by_counsellor[counsellor]["count"] += 1
+        by_counsellor[counsellor]["incidents"] += len(incidents)
+
+        for inc in incidents:
+            cat = inc.get("category") or "other"
+            sev = inc.get("severity") or "low"
+            college = (inc.get("college_or_course") or "general").strip() or "general"
+
+            by_severity[sev] = by_severity.get(sev, 0) + 1
+            by_college[college] = by_college.get(college, 0) + 1
+
+            slot = by_category.setdefault(cat, {
+                "count": 0,
+                "label": _MISSELLING_CATEGORY_LABELS.get(cat, cat),
+                "severity": {"low": 0, "medium": 0, "high": 0},
+                "examples": [],
+            })
+            slot["count"] += 1
+            slot["severity"][sev] = slot["severity"].get(sev, 0) + 1
+            # Keep up to 8 examples per category
+            if len(slot["examples"]) < 8:
+                slot["examples"].append({
+                    "call_id": r["id"],
+                    "counsellor": counsellor,
+                    "severity": sev,
+                    "college_or_course": college,
+                    "quote": inc.get("counsellor_quote", ""),
+                    "translation": inc.get("translation", ""),
+                    "why": inc.get("why_misselling", ""),
+                    "student_was_swayed": bool(inc.get("student_was_swayed", False)),
+                })
+
+    # Sort + finalise
+    cats_sorted = sorted(by_category.items(), key=lambda kv: kv[1]["count"], reverse=True)
+    counsellors_sorted = sorted(
+        ({"name": k, **v} for k, v in by_counsellor.items()),
+        key=lambda x: (x["incidents"], x["count"]),
+        reverse=True,
+    )
+    colleges_sorted = sorted(by_college.items(), key=lambda kv: kv[1], reverse=True)[:30]
+    # newest flagged first
+    flagged_calls.sort(key=lambda c: c.get("created_on") or "", reverse=True)
+
+    return {
+        "total_scored": total_scored,
+        "total_flagged": total_flagged,
+        "flagged_pct": round(total_flagged / total_scored * 100, 1) if total_scored else 0,
+        "by_severity": by_severity,
+        "categories": [{"key": k, **v} for k, v in cats_sorted],
+        "by_counsellor": counsellors_sorted[:50],
+        "top_colleges": [{"name": n, "count": c} for n, c in colleges_sorted],
+        "flagged_calls": flagged_calls,
+    }
+
+
+@app.get("/api/misselling")
+async def api_misselling():
+    """Return aggregated misselling dashboard data."""
+    return _aggregate_misselling()
 
 
 @app.get("/api/institute-usps/{college_name:path}")
