@@ -1,10 +1,12 @@
 /* ======================================================================
    Shiksha Transcript Insights — Dashboard JS
    Uses: Chart.js (loaded via CDN in HTML)
-   Data: window.__DATA__ (injected by server)
+   Data: fetched from /api/bootstrap on load and merged into D.
    ====================================================================== */
 
-const D = window.__DATA__ || {};
+// D is populated by bootstrapData() before initTabs() runs. All sections
+// reference D.xxx so they pick up values once the fetch completes.
+const D = {};
 
 const COLORS = [
   '#4F46E5','#7C3AED','#EC4899','#EF4444','#F97316',
@@ -56,9 +58,9 @@ function initTabs() {
   if (hdr) hdr.textContent = fmt(totalCalls);
   document.querySelectorAll('.dyn-call-count').forEach(el => { el.textContent = fmt(totalCalls); });
 
-  $$('.tab-btn').forEach(btn => {
+  $$('.tab-btn[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
-      $$('.tab-btn').forEach(b => b.classList.remove('active'));
+      $$('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
       $$('.tab-content').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
       const target = btn.dataset.tab;
@@ -72,6 +74,7 @@ function initTabs() {
       if (target === 'explorer' && !window._explorerInit) { initExplorer(); window._explorerInit = true; }
       if (target === 'users' && !window._usersInit) { initUsers(); window._usersInit = true; }
       if (target === 'direct-admissions' && !window._daInit) { initDirectAdmissions(); window._daInit = true; }
+      if (target === 'misselling' && !window._missellingInit) { initMisselling(); window._missellingInit = true; }
       if (target === 'institutes' && !window._institutesInit) { initInstitutes(); window._institutesInit = true; }
       if (target === 'deepdive' && !window._deepdiveInit) { initDeepDive(); window._deepdiveInit = true; }
       if (target === 'playbook' && !window._playbookInit) { initPlaybook(); window._playbookInit = true; }
@@ -434,6 +437,9 @@ function initExplorer() {
       menu.classList.toggle('hidden');
     });
 
+    // Keep menu open while clicking checkboxes / labels inside it
+    menu.addEventListener('click', (e) => e.stopPropagation());
+
     // Checkbox change
     menu.addEventListener('change', (e) => {
       if (e.target.type !== 'checkbox') return;
@@ -491,6 +497,10 @@ function initExplorer() {
 
   // ── Search ──
   $('#explorer-search').addEventListener('input', applyExplorerFilters);
+
+  // ── Load more (pagination) ──
+  const loadMoreBtn = $('#explorer-loadmore');
+  if (loadMoreBtn) loadMoreBtn.addEventListener('click', () => appendExplorerRows(50));
 
   // ── Date range filter ──
   const dateFrom = $('#explorer-date-from');
@@ -604,14 +614,28 @@ function renderExplorerTable(data) {
   tbody.innerHTML = '';
   $('#explorer-count').textContent = `${data.length} calls`;
 
-  data.forEach(c => {
+  const PAGE = 50;
+  // Stash full data on the tbody so the load-more handler can read it
+  tbody._allRows = data;
+  tbody._shown = 0;
+  appendExplorerRows(PAGE);
+}
+
+function appendExplorerRows(pageSize) {
+  const tbody = $('#explorer-tbody');
+  const data = tbody._allRows || [];
+  const start = tbody._shown || 0;
+  const end = Math.min(start + pageSize, data.length);
+  const explorerAll = (window.explorerData || []);
+
+  const frag = document.createDocumentFragment();
+  for (let i = start; i < end; i++) {
+    const c = data[i];
     const outcomeBadge = c.outcome === 'application_started' ? 'badge-green' :
                          c.outcome.includes('interested') ? 'badge-indigo' :
                          c.outcome.includes('callback') ? 'badge-amber' : 'badge-slate';
-
-    // "Other calls" pill if this user has more transcripts
     const userKey = c.user_id || c.mobile || '';
-    const sameUser = userKey ? explorerData.filter(o => (o.user_id || o.mobile || '') === userKey && o.id !== c.id) : [];
+    const sameUser = userKey ? explorerAll.filter(o => (o.user_id || o.mobile || '') === userKey && o.id !== c.id) : [];
     const userBadge = sameUser.length
       ? `<span class="badge badge-cyan" title="This user has ${sameUser.length} other transcripts">+${sameUser.length} more</span>`
       : '';
@@ -632,8 +656,20 @@ function renderExplorerTable(data) {
       <td class="text-center">${c.applied ? '<span class="badge badge-green" title="Confirmed: this user submitted an application after the call">✅ Applied</span>' : '<span class="text-slate-300 text-xs">—</span>'}</td>
       <td class="text-xs whitespace-nowrap">${userLabel} ${userBadge}</td>
       <td class="text-xs text-slate-500 max-w-xs truncate">${h(c.summary)}</td>`;
-    tbody.appendChild(tr);
-  });
+    frag.appendChild(tr);
+  }
+  tbody.appendChild(frag);
+  tbody._shown = end;
+
+  const wrap = $('#explorer-loadmore-wrap');
+  const remEl = $('#explorer-loadmore-remaining');
+  const remaining = data.length - end;
+  if (remaining > 0) {
+    wrap.classList.remove('hidden');
+    if (remEl) remEl.textContent = `(${remaining} more)`;
+  } else {
+    wrap.classList.add('hidden');
+  }
 }
 
 async function openTranscript(callId) {
@@ -1093,6 +1129,11 @@ function initInstitutes() {
     });
   });
   const catSorted = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+  // Grow the inner wrapper so each bar gets ~26px; the outer card scrolls.
+  const catWrap = document.getElementById('chart-usp-categories-wrap');
+  if (catWrap) {
+    catWrap.style.height = Math.max(400, catSorted.length * 26) + 'px';
+  }
   chartHBar('chart-usp-categories',
     catSorted.map(([c]) => c.replace(/_/g, ' ')),
     catSorted.map(([, v]) => v),
@@ -1149,6 +1190,33 @@ function buildCoursePills() {
     });
     container.appendChild(pill);
   });
+
+  // Collapse pills past INITIAL_VISIBLE; show toggle to expand/collapse.
+  const INITIAL_VISIBLE = 12; // not counting the "All" pill
+  const toggleBtn = document.getElementById('usp-course-pills-toggle');
+  const allPills = Array.from(container.querySelectorAll('.course-pill'));
+  // index 0 is the "All" pill; hide everything past INITIAL_VISIBLE+1
+  if (allPills.length > INITIAL_VISIBLE + 1 && toggleBtn) {
+    const applyCollapsed = () => {
+      allPills.forEach((p, i) => {
+        if (i > INITIAL_VISIBLE) p.style.display = 'none';
+      });
+      toggleBtn.textContent = `Show all (${allPills.length - 1 - INITIAL_VISIBLE} more)`;
+    };
+    const applyExpanded = () => {
+      allPills.forEach(p => { p.style.display = ''; });
+      toggleBtn.textContent = 'Show less';
+    };
+    let expanded = false;
+    applyCollapsed();
+    toggleBtn.classList.remove('hidden');
+    toggleBtn.onclick = () => {
+      expanded = !expanded;
+      if (expanded) applyExpanded(); else applyCollapsed();
+    };
+  } else if (toggleBtn) {
+    toggleBtn.classList.add('hidden');
+  }
 }
 
 function normalizeBaseCourse(course) {
@@ -1591,13 +1659,16 @@ function chartHBar(id, labels, values, title) {
   const maxVal = Math.max(0, ...values);
   // Suggested max gives the datalabels at end-of-bar room to render.
   const suggestedMax = maxVal > 0 ? Math.ceil(maxVal * 1.12) : 1;
+  // For very long lists (e.g. USP categories), datalabels become noise and
+  // also cost a lot of render time. Drop them past a threshold.
+  const showDataLabels = labels.length <= 20;
   new Chart(canvas, {
     type: 'bar',
     data: {
       labels,
       datasets: [{ data: values, backgroundColor: COLORS.slice(0, labels.length), borderRadius: 6, barPercentage: 0.7 }]
     },
-    plugins: [ChartDataLabels],
+    plugins: showDataLabels ? [ChartDataLabels] : [],
     options: {
       indexAxis: 'y',
       responsive: true,
@@ -1606,10 +1677,10 @@ function chartHBar(id, labels, values, title) {
       plugins: {
         title: { display: true, text: title, font: { size: 14, weight: '600' }, color: '#334155' },
         legend: { display: false },
-        datalabels: {
+        datalabels: showDataLabels ? {
           anchor: 'end', align: 'end', clamp: true, clip: false,
           font: { size: 11, weight: '600' }, color: '#475569'
-        }
+        } : { display: false }
       },
       scales: {
         x: { beginAtZero: true, suggestedMax, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
@@ -1852,5 +1923,192 @@ function initUsers() {
   render();
 }
 
-/* ---- Init on load ---- */
-document.addEventListener('DOMContentLoaded', initTabs);
+/* ---- Init on load ----
+   Fetch the aggregate JSON (used to be inlined into the HTML) then
+   merge it into D and run the existing init. The fetch is gzipped server-side. */
+async function bootstrapData() {
+  try {
+    const sel = window.__SELECTED_COUNSELLOR__ || '';
+    const url = sel
+      ? `/api/bootstrap?counsellor=${encodeURIComponent(sel)}`
+      : '/api/bootstrap';
+    const res = await fetch(url, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`bootstrap ${res.status}`);
+    const data = await res.json();
+    Object.assign(D, data);
+  } catch (e) {
+    console.error('Failed to load dashboard data', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await bootstrapData();
+  initTabs();
+});
+
+
+/* ==================================================================== */
+/*  MISSELLING TAB                                                       */
+/* ==================================================================== */
+let missellingData = null;          // raw payload from /api/misselling
+let missellingSeverityFilter = 'all';
+
+async function initMisselling() {
+  const root = $('#tab-misselling');
+  if (!root) return;
+  try {
+    const res = await fetch('/api/misselling', { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`misselling ${res.status}`);
+    missellingData = await res.json();
+  } catch (e) {
+    console.error('Failed to load misselling data', e);
+    $('#ms-stat-scored').textContent = '—';
+    return;
+  }
+
+  const d = missellingData;
+  $('#ms-stat-scored').textContent  = fmt(d.total_scored);
+  $('#ms-stat-flagged').textContent = fmt(d.total_flagged);
+  $('#ms-stat-rate').textContent    = `${d.flagged_pct}%`;
+  $('#ms-stat-high').textContent    = fmt((d.by_severity && d.by_severity.high) || 0);
+
+  // Top colleges being pushed via the "free application" nudge
+  const colleges = (d.top_colleges || []).filter(c => c.name && c.name.toLowerCase() !== 'general').slice(0, 12);
+  chartHBar(
+    'chart-ms-colleges',
+    colleges.map(c => c.name),
+    colleges.map(c => c.count),
+    'Top colleges pushed via free-application nudge'
+  );
+
+  // Counsellors with the most flagged calls
+  const cs = (d.by_counsellor || []).slice(0, 12);
+  chartHBar(
+    'chart-ms-counsellors',
+    cs.map(c => c.name),
+    cs.map(c => c.incidents),
+    'Counsellors by flagged incidents'
+  );
+
+  // Severity filter
+  const sevSel = $('#ms-severity-filter');
+  if (sevSel) {
+    sevSel.addEventListener('change', () => {
+      missellingSeverityFilter = sevSel.value;
+      renderMissellingPatterns();
+    });
+  }
+  renderMissellingPatterns();
+
+  // Flagged calls table
+  renderMissellingCalls();
+}
+
+function _msPassesSeverity(sev) {
+  if (missellingSeverityFilter === 'all') return true;
+  if (missellingSeverityFilter === 'high') return sev === 'high';
+  if (missellingSeverityFilter === 'medium') return sev === 'medium' || sev === 'high';
+  return true;
+}
+
+function _msSevBadge(sev) {
+  const cls = sev === 'high' ? 'bg-red-100 text-red-700'
+            : sev === 'medium' ? 'bg-amber-100 text-amber-700'
+            : 'bg-slate-100 text-slate-600';
+  return `<span class="text-xs px-2 py-0.5 rounded-full font-medium ${cls}">${sev}</span>`;
+}
+
+function renderMissellingPatterns() {
+  const wrap = $('#ms-pattern-cards');
+  if (!wrap || !missellingData) return;
+  wrap.innerHTML = '';
+  const cats = missellingData.categories || [];
+  cats.forEach(cat => {
+    const examples = (cat.examples || []).filter(e => _msPassesSeverity(e.severity));
+    if (!examples.length) return;
+
+    const sev = cat.severity || {};
+    const card = document.createElement('div');
+    card.className = 'border border-slate-200 rounded-lg p-4 bg-slate-50';
+    card.innerHTML = `
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <h4 class="font-semibold text-slate-800">${h(cat.label)} <span class="text-slate-400 font-normal">· ${cat.count} incidents</span></h4>
+          <div class="text-xs text-slate-500 mt-0.5">
+            ${sev.high ? `<span class="text-red-600 font-medium">${sev.high} high</span> · ` : ''}
+            ${sev.medium ? `<span class="text-amber-600">${sev.medium} medium</span> · ` : ''}
+            ${sev.low ? `<span class="text-slate-500">${sev.low} low</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="space-y-2">
+        ${examples.slice(0, 5).map(ex => `
+          <div class="bg-white border border-slate-200 rounded p-3">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              ${_msSevBadge(ex.severity)}
+              <span class="text-xs text-slate-500">${h(ex.counsellor)}</span>
+              <span class="text-xs text-slate-400">·</span>
+              <span class="text-xs text-slate-500">${h(ex.college_or_course)}</span>
+              ${ex.student_was_swayed ? '<span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Student swayed</span>' : ''}
+            </div>
+            <div class="quote text-sm">"${h(ex.quote)}"</div>
+            <div class="translation text-xs text-slate-600 mt-1">→ ${h(ex.translation)}</div>
+            <div class="text-xs text-slate-500 mt-1 italic">${h(ex.why)} ${callLink(ex.call_id)}</div>
+          </div>`).join('')}
+      </div>`;
+    wrap.appendChild(card);
+  });
+  if (!wrap.children.length) {
+    wrap.innerHTML = '<div class="text-sm text-slate-500 text-center py-6">No incidents match the current filter.</div>';
+  }
+}
+
+let _msCallsShown = 0;
+const _MS_CALLS_PAGE = 50;
+function renderMissellingCalls() {
+  const tbody = $('#ms-calls-tbody');
+  if (!tbody || !missellingData) return;
+  tbody.innerHTML = '';
+  _msCallsShown = 0;
+  $('#ms-calls-count').textContent = `${missellingData.flagged_calls.length} flagged calls`;
+  appendMissellingCalls(_MS_CALLS_PAGE);
+}
+
+function appendMissellingCalls(pageSize) {
+  const tbody = $('#ms-calls-tbody');
+  const calls = missellingData.flagged_calls;
+  const start = _msCallsShown;
+  const end = Math.min(start + pageSize, calls.length);
+  const frag = document.createDocumentFragment();
+  for (let i = start; i < end; i++) {
+    const c = calls[i];
+    const tr = document.createElement('tr');
+    tr.className = 'cursor-pointer hover:bg-rose-50 border-b border-slate-100';
+    tr.onclick = () => openTranscript(c.id);
+    tr.innerHTML = `
+      <td class="text-xs whitespace-nowrap py-2 px-2">${h(fmtDateTime(c.created_on) || '—')}</td>
+      <td class="font-medium py-2 px-2">${h(c.counsellor)}</td>
+      <td class="text-xs py-2 px-2">${c.categories.map(k => h((missellingData.categories.find(x => x.key === k) || {}).label || k)).join(', ')}</td>
+      <td class="py-2 px-2">${_msSevBadge(c.max_severity)}</td>
+      <td class="text-center py-2 px-2">${c.incident_count}</td>
+      <td class="text-xs text-slate-500 max-w-md truncate py-2 px-2">${h(c.overall_notes)}</td>`;
+    frag.appendChild(tr);
+  }
+  tbody.appendChild(frag);
+  _msCallsShown = end;
+
+  const wrap = $('#ms-calls-loadmore-wrap');
+  const remEl = $('#ms-calls-loadmore-rem');
+  const remaining = calls.length - end;
+  if (remaining > 0) {
+    wrap.classList.remove('hidden');
+    if (remEl) remEl.textContent = `(${remaining} more)`;
+  } else {
+    wrap.classList.add('hidden');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('ms-calls-loadmore');
+  if (btn) btn.addEventListener('click', () => appendMissellingCalls(_MS_CALLS_PAGE));
+});

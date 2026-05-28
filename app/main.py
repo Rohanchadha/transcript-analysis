@@ -7,12 +7,13 @@ Usage:
   python -m uvicorn app.main:app --reload
 """
 
+import gzip
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup
@@ -22,7 +23,19 @@ DATA_DIR = ROOT_DIR / "data"
 APP_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(title="Shiksha Transcript Insights")
-app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
+
+
+class CachedStaticFiles(StaticFiles):
+    """Static files with a 1-day browser cache. Safe for our infrequently-changing
+    JS/CSS. Bump filenames or query-string-version if you need to bust the cache."""
+    async def get_response(self, path, scope):
+        resp = await super().get_response(path, scope)
+        if resp.status_code == 200:
+            resp.headers.setdefault("Cache-Control", "public, max-age=86400")
+        return resp
+
+
+app.mount("/static", CachedStaticFiles(directory=APP_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=APP_DIR / "templates")
 
 # ---------------------------------------------------------------------------
@@ -60,6 +73,13 @@ def load_data():
     if deep_dive_path.exists():
         with open(deep_dive_path, "r", encoding="utf-8") as f:
             store["deep_dive"] = json.load(f)
+
+    misselling_path = DATA_DIR / "misselling_results.json"
+    if misselling_path.exists():
+        with open(misselling_path, "r", encoding="utf-8") as f:
+            store["misselling"] = json.load(f)
+    else:
+        store["misselling"] = []
 
     aggregate_data()
 
@@ -435,7 +455,7 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
             gender_lookup[gr["id"]] = gr.get("gender", {}).get("student_gender", "unclear")
 
     # Batches whose users are confirmed to have applied (downstream conversion known)
-    APPLIED_BATCHES = {"batch-may-14th-may"}
+    APPLIED_BATCHES = {"batch-may-14th-may", "batch-may-14th-may-2"}
     # _batch lives on parsed_transcripts (not analysis_results); build id -> batch lookup
     batch_by_id = {t["id"]: t.get("_batch") for t in store.get("transcripts", []) if t.get("id")}
 
@@ -569,6 +589,13 @@ def aggregate_data(counsellor_filter: str | None = None) -> dict:
         return a
 
     store["agg"] = a
+    # Pre-serialise + gzip the unfiltered aggregate once. /api/bootstrap serves
+    # these bytes directly, so the hot path does zero JSON/gzip work per request.
+    try:
+        raw = json.dumps(a, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        store["agg_gz"] = gzip.compress(raw, compresslevel=6)
+    except Exception:
+        store.pop("agg_gz", None)
     return a
 
 
@@ -657,13 +684,24 @@ async def startup():
 # ---------------------------------------------------------------------------
 # Pages
 # ---------------------------------------------------------------------------
+@app.get("/voicebot-dashboard")
+async def voicebot_dashboard():
+    """Serve the standalone voice-bot transcript dashboard (single-file HTML).
+    Lazy-served on click; does not affect main dashboard load time."""
+    path = ROOT_DIR / "voicebot" / "bot_query_analysis" / "dashboard_llm.html"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Voice bot dashboard not found")
+    return FileResponse(
+        path,
+        media_type="text/html",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
 @app.get("/")
 async def index(request: Request):
+    """Render the shell only. The big aggregate is fetched separately via /api/bootstrap."""
     selected = (request.query_params.get("counsellor") or "").strip()
-    if selected:
-        agg = aggregate_data(counsellor_filter=selected)
-    else:
-        agg = store["agg"]
 
     # Build the canonical counsellor list (with call counts) from the unfiltered cache.
     counts = store["agg"].get("counsellors") or {}
@@ -676,9 +714,44 @@ async def index(request: Request):
         name="index.html",
         request=request,
         context={
-            "data_json": Markup(_safe(agg)),
             "counsellors": counsellor_list,
             "selected_counsellor": selected,
+        },
+    )
+
+
+@app.get("/api/bootstrap")
+async def api_bootstrap(request: Request):
+    """Return the full aggregate that used to be inlined into the HTML.
+
+    Honors the same ?counsellor= filter as the page.
+    Pre-gzipped byte caches per (None | counsellor) so repeat hits do zero
+    JSON serialisation and zero gzip work.
+    """
+    selected = (request.query_params.get("counsellor") or "").strip()
+    key = selected.lower() or None
+    gz_cache = store.setdefault("agg_gz_by_counsellor", {})
+    cached = store.get("agg_gz") if key is None else gz_cache.get(key)
+
+    if cached is None:
+        agg = aggregate_data(counsellor_filter=selected) if selected else store["agg"]
+        try:
+            raw = json.dumps(agg, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            cached = gzip.compress(raw, compresslevel=6)
+            if key is None:
+                store["agg_gz"] = cached
+            else:
+                gz_cache[key] = cached
+        except Exception:
+            return JSONResponse(agg, headers={"Cache-Control": "private, max-age=300"})
+
+    return Response(
+        content=cached,
+        media_type="application/json",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "Content-Encoding": "gzip",
+            "Vary": "Accept-Encoding",
         },
     )
 
@@ -762,6 +835,150 @@ async def api_institute_usps():
 @app.get("/api/direct-admissions")
 async def api_direct_admissions():
     return store["agg"].get("direct_admissions", {})
+
+
+# ---------------------------------------------------------------------------
+# Misselling
+# ---------------------------------------------------------------------------
+_MISSELLING_CATEGORY_LABELS = {
+    "free_application_nudge": "“Application free hai, apply kar do”",
+    "fake_or_inflated_urgency": "Fake / inflated urgency",
+    "misleading_placement_claims": "Misleading placement claims",
+    "downplaying_government_options": "Downplaying government options",
+    "hiding_or_glossing_over_fees": "Hiding / glossing over fees",
+    "overpromising_admission": "Overpromising admission",
+    "ranking_or_accreditation_spin": "Ranking / accreditation spin",
+    "scholarship_bait": "Scholarship bait",
+    "loan_or_emi_easy_money": "Loan / EMI made too easy",
+    "discouraging_research_or_compare": "Discouraging research / comparison",
+    "irrelevant_course_push": "Irrelevant course push",
+    "pressure_to_share_documents": "Pressure to share documents",
+    "other": "Other",
+}
+
+
+def _aggregate_misselling() -> dict:
+    """Aggregate misselling_results.json into chart-friendly buckets.
+
+    SCOPE (intentional, narrow for v1):
+    Only include the `free_application_nudge` category — the known
+    pattern of counsellors pushing colleges purely because the
+    application fee is zero.
+    """
+    records = store.get("misselling") or []
+    ALLOWED = {"free_application_nudge"}
+
+    # Build counsellor + call lookup from existing analysis metadata when possible
+    analysis_by_id = {r["id"]: r for r in store.get("analysis", [])}
+
+    by_category: dict[str, dict] = {}   # cat -> {count, severity, examples[]}
+    by_severity: dict[str, int] = {}
+    by_counsellor: dict[str, dict] = {}
+    by_college: dict[str, int] = {}
+    flagged_calls: list[dict] = []
+
+    total_scored = 0
+    total_flagged = 0
+
+    for r in records:
+        ms = r.get("misselling") or {}
+        if not isinstance(ms, dict):
+            continue
+        total_scored += 1
+        incidents = ms.get("incidents") or []
+        # Keep only the allowed (in-scope) categories
+        incidents = [i for i in incidents if (i.get("category") or "") in ALLOWED]
+        is_flagged = bool(ms.get("has_misselling")) and incidents
+        if not is_flagged:
+            continue
+        total_flagged += 1
+
+        meta = r.get("metadata") or {}
+        counsellor = meta.get("counsellor_name") or "Unknown"
+        # Date for sorting/filtering
+        an = analysis_by_id.get(r["id"], {})
+        created_on = (an.get("metadata") or {}).get("created_on") or meta.get("created_on") or ""
+
+        # Build a compact per-call summary
+        cats = sorted({i.get("category", "other") for i in incidents})
+        max_sev = "low"
+        order = {"low": 0, "medium": 1, "high": 2}
+        for i in incidents:
+            if order.get(i.get("severity", "low"), 0) > order.get(max_sev, 0):
+                max_sev = i.get("severity", "low")
+
+        flagged_calls.append({
+            "id": r["id"],
+            "counsellor": counsellor,
+            "team": meta.get("team_name", "Unknown"),
+            "created_on": created_on,
+            "duration": meta.get("duration", 0),
+            "categories": cats,
+            "max_severity": max_sev,
+            "incident_count": len(incidents),
+            "overall_notes": ms.get("overall_notes", "") or "",
+        })
+
+        by_counsellor.setdefault(counsellor, {"count": 0, "incidents": 0})
+        by_counsellor[counsellor]["count"] += 1
+        by_counsellor[counsellor]["incidents"] += len(incidents)
+
+        for inc in incidents:
+            cat = inc.get("category") or "other"
+            sev = inc.get("severity") or "low"
+            college = (inc.get("college_or_course") or "general").strip() or "general"
+
+            by_severity[sev] = by_severity.get(sev, 0) + 1
+            by_college[college] = by_college.get(college, 0) + 1
+
+            slot = by_category.setdefault(cat, {
+                "count": 0,
+                "label": _MISSELLING_CATEGORY_LABELS.get(cat, cat),
+                "severity": {"low": 0, "medium": 0, "high": 0},
+                "examples": [],
+            })
+            slot["count"] += 1
+            slot["severity"][sev] = slot["severity"].get(sev, 0) + 1
+            # Keep up to 8 examples per category
+            if len(slot["examples"]) < 8:
+                slot["examples"].append({
+                    "call_id": r["id"],
+                    "counsellor": counsellor,
+                    "severity": sev,
+                    "college_or_course": college,
+                    "quote": inc.get("counsellor_quote", ""),
+                    "translation": inc.get("translation", ""),
+                    "why": inc.get("why_misselling", ""),
+                    "student_was_swayed": bool(inc.get("student_was_swayed", False)),
+                })
+
+    # Sort + finalise
+    cats_sorted = sorted(by_category.items(), key=lambda kv: kv[1]["count"], reverse=True)
+    counsellors_sorted = sorted(
+        ({"name": k, **v} for k, v in by_counsellor.items()),
+        key=lambda x: (x["incidents"], x["count"]),
+        reverse=True,
+    )
+    colleges_sorted = sorted(by_college.items(), key=lambda kv: kv[1], reverse=True)[:30]
+    # newest flagged first
+    flagged_calls.sort(key=lambda c: c.get("created_on") or "", reverse=True)
+
+    return {
+        "total_scored": total_scored,
+        "total_flagged": total_flagged,
+        "flagged_pct": round(total_flagged / total_scored * 100, 1) if total_scored else 0,
+        "by_severity": by_severity,
+        "categories": [{"key": k, **v} for k, v in cats_sorted],
+        "by_counsellor": counsellors_sorted[:50],
+        "top_colleges": [{"name": n, "count": c} for n, c in colleges_sorted],
+        "flagged_calls": flagged_calls,
+    }
+
+
+@app.get("/api/misselling")
+async def api_misselling():
+    """Return aggregated misselling dashboard data."""
+    return _aggregate_misselling()
 
 
 @app.get("/api/institute-usps/{college_name:path}")

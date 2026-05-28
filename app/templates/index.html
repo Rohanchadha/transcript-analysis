@@ -130,9 +130,13 @@
     <button class="tab-btn" data-tab="explorer">🔍 Transcript Explorer</button>
     <button class="tab-btn" data-tab="users">👥 Users</button>
     <button class="tab-btn" data-tab="direct-admissions">⚠️ Direct Admissions</button>
+    <button class="tab-btn" data-tab="misselling">🚨 Misselling</button>
     <button class="tab-btn" data-tab="institutes">🏫 Institute USPs</button>
     <button class="tab-btn" data-tab="deepdive">🔬 Deep Dive</button>
     <button class="tab-btn" data-tab="playbook">🤖 Bot Playbook</button>
+    <a href="/voicebot-dashboard" target="_blank" rel="noopener"
+       class="tab-btn nav-external"
+       title="Opens in a new tab">🎙️ Bot Queries ↗</a>
   </div>
 </nav>
 
@@ -428,6 +432,11 @@
         </thead>
         <tbody id="explorer-tbody"></tbody>
       </table>
+      <div id="explorer-loadmore-wrap" class="text-center py-4 hidden">
+        <button id="explorer-loadmore" class="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg">
+          Load more <span id="explorer-loadmore-remaining" class="text-slate-500"></span>
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -560,6 +569,82 @@
 </section>
 
 <!-- ============================================================== -->
+<!-- TAB: MISSELLING                                                 -->
+<!-- ============================================================== -->
+<section id="tab-misselling" class="tab-content">
+  <div class="bg-gradient-to-r from-rose-50 to-red-50 border border-rose-100 rounded-xl p-6 mb-6">
+    <h2 class="text-xl font-bold text-rose-900 mb-1">🚨 Misselling — "Free Application" Nudge</h2>
+    <p class="text-sm text-rose-700">
+      Cases where the counsellor pushes a college <em>primarily</em> because the application fee is zero —
+      instead of fit, merit, placements, or ROI. v1 focuses on this single, high-confidence pattern.
+      Detected by GPT-4o-mini with a strict precision-first prompt.
+    </p>
+  </div>
+
+  <!-- Stat row -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="stat-card"><div class="stat-label">Calls scored</div><div class="stat-value" id="ms-stat-scored">—</div></div>
+    <div class="stat-card"><div class="stat-label">Calls flagged</div><div class="stat-value text-rose-600" id="ms-stat-flagged">—</div></div>
+    <div class="stat-card"><div class="stat-label">Flag rate</div><div class="stat-value" id="ms-stat-rate">—</div></div>
+    <div class="stat-card"><div class="stat-label">High-severity incidents</div><div class="stat-value text-red-600" id="ms-stat-high">—</div></div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="chart-card">
+      <div style="position: relative; height: 360px;"><canvas id="chart-ms-colleges"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div style="position: relative; height: 360px;"><canvas id="chart-ms-counsellors"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Category cards (each pattern + examples) -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 mb-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-slate-800">Example quotes</h3>
+      <div class="flex items-center gap-2 text-xs">
+        <label class="text-slate-500">Severity:</label>
+        <select id="ms-severity-filter" class="px-2 py-1 border border-slate-200 rounded text-sm">
+          <option value="all">All</option>
+          <option value="high">High only</option>
+          <option value="medium">Medium+</option>
+        </select>
+      </div>
+    </div>
+    <div id="ms-pattern-cards" class="space-y-4"></div>
+  </div>
+
+  <!-- Flagged calls table -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-slate-800">Flagged calls</h3>
+      <p class="text-xs text-slate-500"><span id="ms-calls-count">—</span> — click any row to open the transcript</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600 text-xs">
+          <tr>
+            <th class="text-left py-2 px-2">Date</th>
+            <th class="text-left py-2 px-2">Counsellor</th>
+            <th class="text-left py-2 px-2">Categories</th>
+            <th class="text-left py-2 px-2">Severity</th>
+            <th class="text-left py-2 px-2">Incidents</th>
+            <th class="text-left py-2 px-2">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="ms-calls-tbody"></tbody>
+      </table>
+      <div id="ms-calls-loadmore-wrap" class="text-center py-4 hidden">
+        <button id="ms-calls-loadmore" class="px-4 py-2 text-sm font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg">
+          Load more <span id="ms-calls-loadmore-rem" class="text-slate-500"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
 <!-- TAB: INSTITUTE USPs                                             -->
 <!-- ==============================================================  -->
 <section id="tab-institutes" class="tab-content">
@@ -591,7 +676,13 @@
   <!-- Chart: Top institutes by mentions -->
   <div class="grid md:grid-cols-2 gap-4 mb-6">
     <div class="card"><div style="height:400px"><canvas id="chart-usp-mentions"></canvas></div></div>
-    <div class="card"><div style="height:400px"><canvas id="chart-usp-categories"></canvas></div></div>
+    <div class="card">
+      <div style="height:400px; overflow-y:auto;">
+        <div id="chart-usp-categories-wrap" style="height:400px;">
+          <canvas id="chart-usp-categories"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Search & filter -->
@@ -615,6 +706,10 @@
     <div class="mt-3" id="usp-course-pills-wrap">
       <span class="text-xs font-semibold text-slate-500 uppercase mr-2">Filter by course:</span>
       <div class="flex flex-wrap gap-1.5 mt-1.5" id="usp-course-pills"></div>
+      <button id="usp-course-pills-toggle" type="button"
+              class="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-800 hidden">
+        Show all
+      </button>
     </div>
   </div>
 
@@ -702,9 +797,10 @@
 
 <!-- ============================================================== -->
 <!-- DATA + SCRIPTS                                                  -->
+<!-- Aggregate is fetched from /api/bootstrap on load (was inlined). -->
 <!-- ============================================================== -->
 <script>
-  window.__DATA__ = {{ data_json }};
+  window.__SELECTED_COUNSELLOR__ = {{ (selected_counsellor or '') | tojson }};
 </script>
 <script src="/static/js/dashboard.js"></script>
 
